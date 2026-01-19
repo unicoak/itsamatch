@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра на сопоставление</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <!-- Левая зона -->
+            <div class="nav-left">
+                <a href="index.html" class="nav-brand">🎯 Игра на сопоставление</a>
+            </div>
+            
+            <!-- Центральная зона - пустая на главной -->
+            <div class="nav-center">
+            </div>
+            
+            <!-- Правая зона -->
+            <div class="nav-right">
+                <!-- Dropdown выбора темы -->
+                <div class="theme-selector">
+                    <select id="theme-select" class="theme-select" aria-label="Выбрать тему оформления">
+                        <option value="light">☀️ Светлая</option>
+                        <option value="dark">🌙 Тёмная</option>
+                        <option value="light-alt">🌸 Тёплая</option>
+                        <option value="dark-alt">🔥 Синяя</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Игра на сопоставление</h1>
+            <p class="hero-description">
+                Проверьте свою эрудицию: правильно сопоставьте элементы из разных категорий.
+                Перетаскивайте карточки и находите правильные пары!
+            </p>
+        </section>
+
+        <section id="themes" class="themes-section">
+            <div id="themes-container">
+                <!-- Темы будут загружены динамически -->
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>© Игра на сопоставление</p>
+            <p>Разработал <a href="#">Don Su</a></p>
+        </footer>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

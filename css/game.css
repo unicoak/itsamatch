@@ -1,0 +1,659 @@
+/* Игровой контейнер */
+.game-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Статистика игры */
+.game-stats {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+/* Заголовок игры */
+.game-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.game-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.game-header p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Игровое поле */
+.game-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.column-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    text-align: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+    position: relative;
+}
+
+.column-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+}
+
+.cards-container {
+    display: grid;
+    grid-template-rows: repeat(6, 85px); /* Фиксированная высота слотов */
+    gap: 0.75rem;
+    min-height: 555px; /* 6 * 85px + 5 * 0.75rem */
+    /* Убрали transition - он вызывал тряску */
+}
+
+/* Фиксированная сетка - всегда 6 слотов */
+/* При удалении карточки остальные автоматически заполняют пустоту */
+.cards-container .card {
+    width: 100%;
+}
+
+/* Плавное появление карточек - БЫСТРО И ЧЕТКО */
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Анимация исчезновения карточки - БЕЗ МОРГАНИЯ */
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.85);
+        visibility: hidden; /* Скрываем в конце анимации */
+    }
+}
+
+.card.fade-out {
+    animation: fadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    pointer-events: none !important;
+}
+
+/* После fadeOut карточка невидима но остается в Grid - НЕТ СКАЧКОВ */
+.card.fade-out-complete {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Анимация появления добавляется программно только для НОВЫХ карточек */
+.card.card-enter {
+    animation: cardAppear 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Карточки */
+.card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+    
+    /* Фиксированная высота для всех карточек */
+    min-height: 85px;
+    height: 85px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Правые карточки - перетаскиваемые */
+.card[data-side="right"] {
+    cursor: grab;
+}
+
+.card[data-side="right"]:active {
+    cursor: grabbing;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: var(--accent-color);
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.card.dragging {
+    opacity: 0.6;
+    cursor: grabbing;
+    transform: rotate(2deg) scale(1.02);
+}
+
+.card.matched {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-color: #047857;
+    cursor: default;
+    animation: matchAnimation 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card.matched::before {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    opacity: 1;
+}
+
+.card.matched:hover {
+    transform: none;
+}
+
+.card.drop-target {
+    border-color: var(--accent-color);
+    border-style: dashed;
+    border-width: 2px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+}
+
+.card.drop-target::before {
+    opacity: 1;
+}
+
+.card-content {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: center;
+    color: var(--text-primary);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Адаптивный размер шрифта в зависимости от длины текста */
+.card-content.text-medium {
+    font-size: 0.85rem;
+    line-height: 1.25;
+}
+
+.card-content.text-long {
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.card-content.text-very-long {
+    font-size: 0.7rem;
+    line-height: 1.15;
+}
+
+.card.matched .card-content {
+    color: white;
+    font-weight: 600;
+}
+
+/* Анимация совпадения */
+@keyframes matchAnimation {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.05) rotate(-1deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(1deg);
+    }
+    75% {
+        transform: scale(1.05) rotate(-0.5deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Анимация появления добавляется программно только для НОВЫХ карточек */
+.card.card-enter {
+    animation: cardAppear 0.3s ease;
+}
+
+/* Экран завершения */
+.game-completed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.game-completed.hidden {
+    display: none;
+}
+
+.completion-card {
+    background-color: var(--bg-card);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.5s ease;
+}
+
+.completion-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+
+.completion-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.completion-card p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.completion-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+@media (max-width: 768px) {
+    .completion-stats {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+.completion-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-secondary);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .game-board {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .game-container {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 0.75rem 0.875rem;
+    }
+
+    .card-content {
+        font-size: 0.9rem;
+    }
+
+    .completion-card {
+        margin: 1rem;
+        padding: 2rem;
+    }
+
+    .completion-buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+/* Улучшенный скроллинг на мобильных */
+@media (max-width: 768px) {
+    .cards-container {
+        min-height: auto;
+    }
+}
+
+/* Toast уведомления */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid #10b981;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    max-width: 500px;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* Адаптив для toast */
+@media (max-width: 768px) {
+    .toast {
+        left: 1rem;
+        right: 1rem;
+        transform: translateX(0) translateY(100px);
+        max-width: none;
+    }
+    
+    .toast.show {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+/* Combo Toast уведомления */
+.combo-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    z-index: 3000;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.combo-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.combo-toast-content {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .combo-toast-content {
+        font-size: 1.25rem;
+    }
+}
+
+/* ============ ONE-TO-MANY ПРОГРЕСС-БАР ============ */
+
+/* Всплывающее окошко с очками */
+.score-display {
+    position: relative; /* Для позиционирования popup */
+}
+
+.score-popup {
+    position: absolute;
+    left: calc(100% + 10px); /* Справа от счета очков */
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    pointer-events: none;
+    animation: scorePopupSide 2s ease-out forwards;
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+.score-popup.positive {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.score-popup.negative {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes scorePopupSide {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-10px) scale(0.8);
+    }
+    10% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0) scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(10px) scale(0.9);
+    }
+}
+
+/* Красная анимация неправильного ответа */
+.card.incorrect {
+    animation: incorrectShake 0.6s ease;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+}
+
+@keyframes incorrectShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-8px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(8px);
+    }
+}
+
+/* ============ ONE-TO-MANY ПРОГРЕСС-БАР ============ */
+
+.progress-container {
+    margin-top: 0.75rem;
+    width: 100%;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), #3b82f6);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.progress-text {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Анимация при обновлении прогресса */
+.card.progress-updated .progress-fill {
+    animation: progressPulse 0.5s ease;
+}
+
+@keyframes progressPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+        transform: scaleY(1.2);
+    }
+}
+
+/* Прогресс-бар для завершённой карточки */
+.card.matched .progress-fill {
+    background: linear-gradient(90deg, #10b981, #059669);
+}
+
+@media (max-width: 768px) {
+    .progress-bar {
+        height: 6px;
+    }
+    
+    .progress-text {
+        font-size: 0.7rem;
+    }
+}

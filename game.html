@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <!-- Левая зона -->
+            <div class="nav-left">
+                <a href="index.html" class="nav-brand">← Назад</a>
+            </div>
+            
+            <!-- Центральная зона - ОЧКИ -->
+            <div class="nav-center">
+                <div class="score-display">
+                    <span class="score-label">Очки:</span>
+                    <span id="score" class="score-value">0</span>
+                    <!-- Всплывающее окно появляется здесь, справа от очков -->
+                </div>
+            </div>
+            
+            <!-- Правая зона -->
+            <div class="nav-right">
+                <!-- Комбо - всегда занимает место -->
+                <div id="combo-display" class="combo-display inactive">
+                    <span class="combo-icon">🔥</span>
+                    <span id="combo" class="combo-value">0</span>
+                </div>
+                
+                <!-- Статистика пар -->
+                <div id="game-stats" class="game-stats">
+                    <span id="matched-count">0</span> / <span id="total-count">25</span>
+                </div>
+                
+                <!-- Dropdown выбора темы -->
+                <div class="theme-selector">
+                    <select id="theme-select" class="theme-select" aria-label="Выбрать тему оформления">
+                        <option value="light">☀️ Светлая</option>
+                        <option value="dark">🌙 Тёмная</option>
+                        <option value="light-alt">🌸 Тёплая</option>
+                        <option value="dark-alt">🔥 Синяя</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="game-container">
+        <div id="game-header" class="game-header">
+            <h1 id="game-title">Загрузка...</h1>
+            <p id="game-description"></p>
+        </div>
+
+        <div id="game-board" class="game-board">
+            <div class="column left-column">
+                <h2 id="left-column-title" class="column-title">Левая колонка</h2>
+                <div id="left-cards" class="cards-container">
+                    <!-- Карточки будут добавлены динамически -->
+                </div>
+            </div>
+
+            <div class="column right-column">
+                <h2 id="right-column-title" class="column-title">Правая колонка</h2>
+                <div id="right-cards" class="cards-container">
+                    <!-- Карточки будут добавлены динамически -->
+                </div>
+            </div>
+        </div>
+
+        <div id="game-completed" class="game-completed hidden">
+            <div class="completion-card">
+                <div class="completion-icon">🎉</div>
+                <h2>Поздравляем!</h2>
+                <p>Вы успешно сопоставили все пары!</p>
+                <div class="completion-buttons">
+                    <button id="play-again" class="btn btn-primary">Играть снова</button>
+                    <a href="index.html" class="btn btn-secondary">Выбрать другую тему</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/drag-drop.js"></script>
+    <script>
+        // Инициализация темы оформления
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.querySelector('.theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+        
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.querySelector('.theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+    </script>
+</body>
+</html>

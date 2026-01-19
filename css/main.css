@@ -1,0 +1,473 @@
+/* Подключение шрифта */
+@font-face {
+    font-family: 'SouthGhetto';
+    src: url('../fonts/ofont_ru_SouthGhetto.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    /* Светлая тема */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-card: #ffffff;
+    --bg-card-hover: #fafafa;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --accent-color: #2563eb;
+    --accent-hover: #1d4ed8;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] {
+    /* Тёмная тема */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #242424;
+    --bg-card: #2a2a2a;
+    --bg-card-hover: #323232;
+    --text-primary: #e5e5e5;
+    --text-secondary: #a0a0a0;
+    --border-color: #404040;
+    --accent-color: #3b82f6;
+    --accent-hover: #2563eb;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light-alt"] {
+    /* Альтернативная светлая тема (тёплая) */
+    --bg-primary: #fef6e4;
+    --bg-secondary: #f3eed9;
+    --bg-card: #fffffe;
+    --bg-card-hover: #f9f5e7;
+    --text-primary: #001e1d;
+    --text-secondary: #716040;
+    --border-color: #e8d5b7;
+    --accent-color: #f582ae;
+    --accent-hover: #e0719d;
+    --shadow: 0 2px 8px rgba(0, 30, 29, 0.1);
+    --shadow-hover: 0 4px 16px rgba(0, 30, 29, 0.15);
+}
+
+[data-theme="dark-alt"] {
+    /* Альтернативная тёмная тема (синяя) */
+    --bg-primary: #0f0e17;
+    --bg-secondary: #1a1826;
+    --bg-card: #2e2f3e;
+    --bg-card-hover: #3a3b4f;
+    --text-primary: #fffffe;
+    --text-secondary: #a7a9be;
+    --border-color: #3f4158;
+    --accent-color: #ff8906;
+    --accent-hover: #e67a05;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'SouthGhetto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Применяем шрифт ко всем элементам */
+button, input, select, textarea, option {
+    font-family: 'SouthGhetto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Навигация */
+.navbar {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+
+.nav-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* Левая зона */
+.nav-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.nav-brand {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-brand:hover {
+    color: var(--accent-color);
+}
+
+/* Центральная зона - ОЧКИ */
+.nav-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Правая зона */
+.nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.5rem;
+}
+
+/* Очки */
+.score-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    position: relative;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.score-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.score-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+/* Комбо - всегда занимает место, но может быть невидимым */
+.combo-display {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    min-width: 70px;
+    justify-content: center;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Когда комбо = 0, делаем невидимым но место остаётся */
+.combo-display.inactive {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Когда комбо активно */
+.combo-display.active {
+    opacity: 1;
+    animation: pulse 0.6s ease-in-out infinite;
+}
+
+.combo-icon {
+    font-size: 1rem;
+}
+
+.combo-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+}
+
+/* Статистика игры */
+.game-stats {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Dropdown выбора темы */
+.theme-selector {
+    position: relative;
+}
+
+.theme-select {
+    appearance: none;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    min-width: 130px;
+}
+
+.theme-select:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--accent-color);
+}
+
+.theme-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Адаптивность navbar для мобильных */
+@media (max-width: 768px) {
+    .nav-content {
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .nav-brand {
+        font-size: 1rem;
+    }
+    
+    .score-display {
+        min-width: 110px;
+    }
+    
+    .score-label {
+        font-size: 0.75rem;
+    }
+    
+    .score-value {
+        font-size: 1.1rem;
+    }
+    
+    .combo-display {
+        min-width: 60px;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    .game-stats {
+        font-size: 0.9rem;
+        min-width: 70px;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .theme-select {
+        font-size: 0.85rem;
+        min-width: 110px;
+        padding: 0.4rem 1.75rem 0.4rem 0.75rem;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Контейнер */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Герой секция */
+.hero {
+    text-align: center;
+    padding: 3rem 0 4rem;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Темы */
+.themes-section {
+    margin-bottom: 4rem;
+}
+
+#themes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.theme-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    text-align: center;
+    position: relative;
+    overflow: hidden; /* Чтобы description не выходил за границы */
+}
+
+.theme-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    background-color: var(--bg-card-hover);
+}
+
+.theme-card:hover .theme-description-hover {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.theme-icon-large {
+    font-size: 4rem;
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.theme-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+/* Новый hover эффект - описание снизу карточки */
+.theme-description-hover {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(37, 99, 235, 0.95), rgba(37, 99, 235, 0.85));
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Старый tooltip - убираем */
+.theme-tooltip {
+    display: none;
+}
+
+.theme-tooltip::before {
+    display: none;
+}
+
+.theme-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.play-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.play-button:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Футер */
+.footer {
+    text-align: center;
+    padding: 3rem 0;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.footer p {
+    margin: 0.5rem 0;
+}
+
+.footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    #themes-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    .nav-content {
+        padding: 0 1rem;
+    }
+}
