@@ -1,0 +1,91 @@
+{
+  "id": "eurovision-winners",
+  "title": "Победители Евровидения",
+  "description": "Сопоставьте страну и год победы на Евровидении с песней и исполнителем",
+  "icon": "🎤",
+  "leftColumn": {
+    "title": "Страна и год",
+    "type": "countries-years"
+  },
+  "rightColumn": {
+    "title": "Песня и исполнитель",
+    "type": "songs-artists"
+  },
+  "pairs": [
+    {
+      "id": 1,
+      "left": "Норвегия, 2009",
+      "right": "Александр Рыбак — Fairytale"
+    },
+    {
+      "id": 2,
+      "left": "Швеция, 2012",
+      "right": "Loreen — Euphoria"
+    },
+    {
+      "id": 3,
+      "left": "Финляндия, 2006",
+      "right": "Lordi — Hard Rock Hallelujah"
+    },
+    {
+      "id": 4,
+      "left": "Австрия, 2014",
+      "right": "Conchita Wurst — Rise Like a Phoenix"
+    },
+    {
+      "id": 5,
+      "left": "Украина, 2016",
+      "right": "Jamala — 1944"
+    },
+    {
+      "id": 6,
+      "left": "Израиль, 2018",
+      "right": "Netta — Toy"
+    },
+    {
+      "id": 7,
+      "left": "Нидерланды, 2019",
+      "right": "Duncan Laurence — Arcade"
+    },
+    {
+      "id": 8,
+      "left": "Италия, 2021",
+      "right": "Måneskin — Zitti e buoni"
+    },
+    {
+      "id": 9,
+      "left": "Ирландия, 1996",
+      "right": "Eimear Quinn — The Voice"
+    },
+    {
+      "id": 10,
+      "left": "Великобритания, 1997",
+      "right": "Katrina and the Waves — Love Shine a Light"
+    },
+    {
+      "id": 11,
+      "left": "Германия, 2010",
+      "right": "Lena — Satellite"
+    },
+    {
+      "id": 12,
+      "left": "Дания, 2013",
+      "right": "Emmelie de Forest — Only Teardrops"
+    },
+    {
+      "id": 13,
+      "left": "Россия, 2008",
+      "right": "Дима Билан — Believe"
+    },
+    {
+      "id": 14,
+      "left": "Эстония, 2001",
+      "right": "Tanel Padar, Dave Benton & 2XL — Everybody"
+    },
+    {
+      "id": 15,
+      "left": "Латвия, 2002",
+      "right": "Marie N — I Wanna"
+    }
+  ]
+}
