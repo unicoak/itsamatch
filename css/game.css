@@ -400,48 +400,443 @@
     }
 }
 
-/* Адаптив для мобильных */
+/* ═══════════════════════════════════════════════════════════════════
+   АДАПТИВ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ
+   ═══════════════════════════════════════════════════════════════════
+   
+   На мобильных (экран <768px) игровое поле трансформируется в сетку 3×4:
+   
+   ┌─────────────────────┐
+   │  ЛЕВЫЕ КАРТОЧКИ     │  ← Синяя индикация
+   ├──────┬──────┬───────┤
+   │  1L  │  2L  │  3L   │  ← Строка 1
+   ├──────┼──────┼───────┤
+   │  4L  │  5L  │  6L   │  ← Строка 2
+   ├──────┴──────┴───────┤
+   │  ПРАВЫЕ КАРТОЧКИ    │  ← Зелёная индикация
+   ├──────┬──────┬───────┤
+   │  1R  │  2R  │  3R   │  ← Строка 3
+   ├──────┼──────┼───────┤
+   │  4R  │  5R  │  6R   │  ← Строка 4
+   └──────┴──────┴───────┘
+   
+   Механика остаётся той же: тап на правую → тап на левую
+*/
+
 @media (max-width: 768px) {
-    .game-board {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-
+    /* ────────────────────────────────────────────────────────
+       ОБЩИЕ НАСТРОЙКИ
+       ──────────────────────────────────────────────────────── */
+    
     .game-container {
-        padding: 1rem;
+        padding: 0.75rem;
+        padding-top: 1rem;
     }
-
-    .card {
-        padding: 0.75rem 0.875rem;
+    
+    .game-header {
+        margin-bottom: 1.5rem;
     }
-
-    .card-content {
-        font-size: 0.9rem;
+    
+    .game-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        line-height: 1.2;
     }
-
-    .completion-card {
-        margin: 1rem;
-        padding: 2rem;
+    
+    .game-header p {
+        font-size: 0.875rem;
+        line-height: 1.4;
     }
-
-    .completion-buttons {
+    
+    /* ────────────────────────────────────────────────────────
+       ИГРОВАЯ ДОСКА - ОБЪЕДИНЯЕМ КОЛОНКИ
+       ──────────────────────────────────────────────────────── */
+    
+    .game-board {
+        display: flex;
         flex-direction: column;
+        gap: 0;
+        margin-bottom: 1.5rem;
     }
-
-    .btn {
+    
+    .column {
         width: 100%;
     }
-}
-
-/* Улучшенный скроллинг на мобильных */
-@media (max-width: 768px) {
+    
+    /* ────────────────────────────────────────────────────────
+       ЗАГОЛОВКИ КОЛОНОК - КОМПАКТНЫЕ С ЦВЕТОВОЙ ИНДИКАЦИЕЙ
+       ──────────────────────────────────────────────────────── */
+    
+    .column-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-bottom: none;
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        text-align: left;
+    }
+    
+    /* Убираем декоративную линию под заголовком */
+    .column-title::after {
+        display: none;
+    }
+    
+    /* Левая колонка - синяя индикация */
+    .left-column .column-title {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.06));
+        border-left: 4px solid #3b82f6;
+        color: var(--text-primary);
+    }
+    
+    /* Правая колонка - зелёная индикация */
+    .right-column .column-title {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.06));
+        border-left: 4px solid #10b981;
+        margin-top: 1rem;
+        color: var(--text-primary);
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       СЕТКА КАРТОЧЕК 3×2
+       ──────────────────────────────────────────────────────── */
+    
     .cards-container {
-        min-height: auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);  /* 3 колонки равной ширины */
+        grid-template-rows: repeat(2, auto);    /* 2 строки автоматической высоты */
+        gap: 0.5rem;                            /* Зазор между карточками */
+        min-height: unset;                      /* Убираем фиксированную высоту */
+        padding: 0;
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       КАРТОЧКИ - АДАПТАЦИЯ ПОД МОБИЛЬНЫЙ ЭКРАН
+       ──────────────────────────────────────────────────────── */
+    
+    .card {
+        min-height: 75px;      /* Минимальная высота для читаемости */
+        height: auto;          /* Автоматическая высота по контенту */
+        max-height: 100px;     /* Максимум чтобы не растягивались */
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       КОНТЕНТ КАРТОЧКИ
+       ──────────────────────────────────────────────────────── */
+    
+    .card-content {
+        font-size: 0.75rem;
+        line-height: 1.3;
+        
+        /* Ограничение количества строк с многоточием */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;          /* Максимум 3 строки */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-wrap: break-word;
+    }
+    
+    /* Адаптивный шрифт для длинного текста */
+    .card-content.text-medium {
+        font-size: 0.7rem;
+    }
+    
+    .card-content.text-long {
+        font-size: 0.65rem;
+        -webkit-line-clamp: 3;
+    }
+    
+    .card-content.text-very-long {
+        font-size: 0.6rem;
+        -webkit-line-clamp: 3;
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       ПРОГРЕСС-БАР (для one-to-many режима)
+       ──────────────────────────────────────────────────────── */
+    
+    .progress-container {
+        margin-top: 0.25rem;
+    }
+    
+    .progress-bar {
+        height: 3px;
+    }
+    
+    .progress-text {
+        font-size: 0.65rem;
+        margin-top: 0.125rem;
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       АНИМАЦИИ - УСКОРЕННЫЕ ДЛЯ МОБИЛЬНЫХ
+       ──────────────────────────────────────────────────────── */
+    
+    .card {
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes cardAppear {
+        from {
+            opacity: 0;
+            transform: translateY(8px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    .card.card-enter {
+        animation: cardAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       ВИЗУАЛЬНОЕ РАЗДЕЛЕНИЕ МЕЖДУ ЛЕВЫМИ И ПРАВЫМИ
+       ──────────────────────────────────────────────────────── */
+    
+    .left-column .cards-container {
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    
+    /* Тонкая разделительная линия */
+    .left-column .cards-container::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--border-color) 15%,
+            var(--border-color) 85%,
+            transparent
+        );
+        opacity: 0.6;
+    }
+    
+    /* ────────────────────────────────────────────────────────
+       ЭКРАН ЗАВЕРШЕНИЯ
+       ──────────────────────────────────────────────────────── */
+    
+    .completion-card {
+        margin: 1rem 0.75rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .completion-icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .completion-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .completion-card p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .completion-stats {
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-item {
+        padding: 0.75rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    .stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .completion-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
     }
 }
 
-/* Toast уведомления */
-.toast {
+/* ═══════════════════════════════════════════════════════════════════
+   ОЧЕНЬ МАЛЕНЬКИЕ ЭКРАНЫ (<375px)
+   ═══════════════════════════════════════════════════════════════════
+   
+   Дополнительные адаптации для iPhone SE, Galaxy Fold и т.д.
+*/
+
+@media (max-width: 374px) {
+    .game-container {
+        padding: 0.5rem;
+    }
+    
+    .game-header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .game-header p {
+        font-size: 0.8rem;
+    }
+    
+    .column-title {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .cards-container {
+        gap: 0.375rem;  /* Уменьшаем зазоры */
+    }
+    
+    .card {
+        min-height: 65px;
+        max-height: 90px;
+        padding: 0.4rem 0.5rem;
+    }
+    
+    .card-content {
+        font-size: 0.7rem;
+        -webkit-line-clamp: 2;  /* Только 2 строки */
+    }
+    
+    .card-content.text-medium,
+    .card-content.text-long,
+    .card-content.text-very-long {
+        font-size: 0.6rem;
+    }
+    
+    .progress-bar {
+        height: 2px;
+    }
+    
+    .progress-text {
+        font-size: 0.6rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   АЛЬБОМНАЯ ОРИЕНТАЦИЯ (<768px)
+   ═══════════════════════════════════════════════════════════════════
+   
+   Когда телефон повёрнут горизонтально - максимально компактно
+*/
+
+@media (max-width: 768px) and (orientation: landscape) {
+    .game-container {
+        padding: 0.5rem;
+    }
+    
+    .game-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .game-header h1 {
+        font-size: 1.25rem;
+        margin-bottom: 0.125rem;
+    }
+    
+    /* Скрываем описание для экономии вертикального пространства */
+    .game-header p {
+        display: none;
+    }
+    
+    .column-title {
+        padding: 0.375rem 0.6rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.375rem;
+    }
+    
+    .right-column .column-title {
+        margin-top: 0.5rem;
+    }
+    
+    .cards-container {
+        gap: 0.375rem;
+    }
+    
+    .card {
+        min-height: 60px;
+        max-height: 75px;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    .card-content {
+        font-size: 0.7rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    .left-column .cards-container {
+        padding-bottom: 0.375rem;
+        margin-bottom: 0.375rem;
+    }
+}
+
+/* Toast уведомления - описание пары (левый верхний угол) */
+.toast-description {
+    position: fixed;
+    top: 5rem; /* Ниже navbar */
+    left: 2rem;
+    transform: translateX(-120%); /* Начинаем слева за экраном */
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    max-width: 450px;
+    min-width: 300px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast-description.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-description .toast-icon {
+    font-size: 2rem;
+    color: var(--accent-color);
+    background: linear-gradient(135deg, #10b981, #059669);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.toast-description .toast-message {
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* Старые toast (нижний центр) - для других уведомлений */
+.toast:not(.toast-description) {
     position: fixed;
     bottom: 2rem;
     left: 50%;
@@ -461,33 +856,59 @@
     transition: all 0.3s ease;
 }
 
-.toast.show {
+.toast:not(.toast-description).show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
 
-.toast-icon {
+.toast:not(.toast-description) .toast-icon {
     font-size: 1.5rem;
     color: #10b981;
     flex-shrink: 0;
 }
 
-.toast-message {
+.toast:not(.toast-description) .toast-message {
     color: var(--text-primary);
     font-size: 0.95rem;
     line-height: 1.4;
 }
 
-/* Адаптив для toast */
+/* Адаптив для toast-description */
 @media (max-width: 768px) {
-    .toast {
+    .toast-description {
+        left: 1rem;
+        right: 1rem;
+        top: 4.5rem;
+        min-width: auto;
+        max-width: calc(100% - 2rem);
+        transform: translateY(-120%);
+    }
+    
+    .toast-description.show {
+        transform: translateY(0);
+    }
+    
+    .toast-description .toast-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.75rem;
+    }
+    
+    .toast-description .toast-message {
+        font-size: 0.9rem;
+    }
+}
+
+/* Адаптив для обычных toast */
+@media (max-width: 768px) {
+    .toast:not(.toast-description) {
         left: 1rem;
         right: 1rem;
         transform: translateX(0) translateY(100px);
         max-width: none;
     }
     
-    .toast.show {
+    .toast:not(.toast-description).show {
         transform: translateX(0) translateY(0);
     }
 }
