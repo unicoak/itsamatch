@@ -46,6 +46,35 @@
                         <option value="dark-alt">🔥 Синяя</option>
                     </select>
                 </div>
+                
+                <!-- Управление звуком -->
+                <div class="sound-controls">
+                    <button id="sound-toggle" class="sound-btn" aria-label="Включить/выключить звуки">
+                        <span class="sound-icon">🔊</span>
+                    </button>
+                    <input 
+                        type="range" 
+                        id="volume-slider" 
+                        class="volume-slider"
+                        min="0" 
+                        max="100" 
+                        value="50"
+                        aria-label="Громкость звуков"
+                    >
+                </div>
+                
+                <!-- Кнопка входа (до авторизации) -->
+                <a href="login.html" id="login-btn" class="nav-btn nav-btn-compact">
+                    🔐
+                </a>
+                
+                <!-- Профиль пользователя (после авторизации) -->
+                <div id="user-profile" class="user-profile user-profile-compact" style="display: none;">
+                    <button class="user-profile-btn user-profile-btn-compact">
+                        <span class="user-avatar">👤</span>
+                        <span class="user-name" id="user-name">Игрок</span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -85,6 +114,7 @@
         </div>
     </main>
 
+    <script src="js/sound-manager.js"></script>
     <script src="js/main.js"></script>
     <script src="js/game-engine.js"></script>
     <script src="js/drag-drop.js"></script>
@@ -102,5 +132,15 @@
             document.querySelector('.theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
         });
     </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Auth System -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/progress.js"></script>
 </body>
 </html>

@@ -246,6 +246,103 @@ button, input, select, textarea, option {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   УПРАВЛЕНИЕ ЗВУКОМ
+   ═══════════════════════════════════════════════════════════ */
+
+.sound-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sound-btn {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sound-btn:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.sound-btn:active {
+    transform: translateY(0);
+}
+
+.sound-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+/* Слайдер громкости */
+.volume-slider {
+    width: 80px;
+    height: 6px;
+    background: var(--bg-secondary);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Disabled state */
+.volume-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.volume-slider:disabled::-webkit-slider-thumb {
+    background: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+.volume-slider:disabled::-moz-range-thumb {
+    background: var(--text-secondary);
+    cursor: not-allowed;
+}
+
 /* Адаптивность navbar для мобильных */
 @media (max-width: 768px) {
     .nav-content {
@@ -285,6 +382,22 @@ button, input, select, textarea, option {
         font-size: 0.85rem;
         min-width: 110px;
         padding: 0.4rem 1.75rem 0.4rem 0.75rem;
+    }
+    
+    .sound-controls {
+        gap: 0.5rem;
+    }
+    
+    .sound-btn {
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .sound-icon {
+        font-size: 1.1rem;
+    }
+    
+    .volume-slider {
+        width: 60px;
     }
 }
 
@@ -407,7 +520,66 @@ button, input, select, textarea, option {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 0.75rem;
     margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ИНДИКАТОР СЛОЖНОСТИ
+   ═══════════════════════════════════════════════════════════ */
+
+.difficulty-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin: 0.75rem 0;
+    transition: all 0.3s ease;
+}
+
+.difficulty-stars {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+/* Цвета звёздочек в зависимости от сложности */
+.difficulty-indicator[data-level="1"] .difficulty-stars {
+    color: #10b981; /* Зелёный - легко */
+}
+
+.difficulty-indicator[data-level="2"] .difficulty-stars {
+    color: #f59e0b; /* Оранжевый - средне */
+}
+
+.difficulty-indicator[data-level="3"] .difficulty-stars {
+    color: #ef4444; /* Красный - сложно */
+}
+
+.difficulty-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Hover эффект */
+.theme-card:hover .difficulty-indicator {
+    transform: scale(1.05);
+}
+
+/* Бейдж ONE-TO-MANY */
+.theme-badge {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
 .play-button {
@@ -470,4 +642,586 @@ button, input, select, textarea, option {
     .nav-content {
         padding: 0 1rem;
     }
+    
+    /* Адаптация карточек тем */
+    .theme-card {
+        padding: 1.5rem;
+    }
+    
+    .theme-icon-large {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .theme-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .difficulty-indicator {
+        padding: 0.35rem 0.6rem;
+        margin: 0.5rem 0;
+    }
+    
+    .difficulty-stars {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+    
+    .difficulty-text {
+        font-size: 0.75rem;
+    }
+    
+    .theme-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .play-button {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   МОДАЛЬНОЕ ОКНО ВЫБОРА СЛОЖНОСТИ
+   ═══════════════════════════════════════════════════════════ */
+
+.difficulty-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.difficulty-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.difficulty-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.difficulty-content {
+    position: relative;
+    background: var(--bg-card);
+    border-radius: 16px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.8) translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.difficulty-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.difficulty-close:hover {
+    background: var(--bg-secondary);
+    color: var(--accent-color);
+    transform: rotate(90deg);
+}
+
+.difficulty-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.difficulty-theme-icon {
+    font-size: 4rem;
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.difficulty-theme-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.difficulty-description {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* ═══ Опции сложности ═══ */
+
+.difficulty-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.difficulty-option {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.difficulty-option:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-color);
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
+}
+
+.difficulty-option:active {
+    transform: translateX(8px) scale(0.98);
+}
+
+.difficulty-option-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.difficulty-option-stars {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.difficulty-option-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.difficulty-option-details {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.difficulty-option-pairs {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin: 0;
+}
+
+.difficulty-option-composition {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.difficulty-option-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Цветовая кодировка по сложности */
+.difficulty-option[data-difficulty="1"] .difficulty-option-stars {
+    color: #10b981; /* Зелёный */
+}
+
+.difficulty-option[data-difficulty="2"] .difficulty-option-stars {
+    color: #f59e0b; /* Оранжевый */
+}
+
+.difficulty-option[data-difficulty="3"] .difficulty-option-stars {
+    color: #ef4444; /* Красный */
+}
+
+.difficulty-option[data-difficulty="1"]:hover {
+    border-color: #10b981;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+}
+
+.difficulty-option[data-difficulty="2"]:hover {
+    border-color: #f59e0b;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2);
+}
+
+.difficulty-option[data-difficulty="3"]:hover {
+    border-color: #ef4444;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+}
+
+/* ═══ Мобильная адаптация ═══ */
+
+@media (max-width: 768px) {
+    .difficulty-content {
+        padding: 2rem 1.5rem;
+        width: 95%;
+    }
+    
+    .difficulty-theme-icon {
+        font-size: 3rem;
+    }
+    
+    .difficulty-theme-title {
+        font-size: 1.5rem;
+    }
+    
+    .difficulty-description {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .difficulty-option {
+        padding: 1.25rem;
+    }
+    
+    .difficulty-option:hover {
+        transform: translateX(4px);
+    }
+    
+    .difficulty-option-header {
+        gap: 0.75rem;
+    }
+    
+    .difficulty-option-stars {
+        font-size: 1.25rem;
+    }
+    
+    .difficulty-option-title {
+        font-size: 1.1rem;
+    }
+    
+    .difficulty-option-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .difficulty-option-pairs {
+        font-size: 0.95rem;
+    }
+    
+    .difficulty-option-composition {
+        font-size: 0.8rem;
+    }
+    
+    .difficulty-option-description {
+        font-size: 0.85rem;
+    }
+    
+    .difficulty-close {
+        width: 36px;
+        height: 36px;
+        font-size: 1.75rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   USER PROFILE & AUTH UI
+   ═══════════════════════════════════════════════════════════ */
+
+/* Login Button */
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.nav-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* User Profile */
+.user-profile {
+    position: relative;
+}
+
+.user-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-profile-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-color);
+}
+
+.user-avatar {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+}
+
+.user-profile-btn:hover .dropdown-arrow {
+    transform: translateY(2px);
+}
+
+/* User Dropdown */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 280px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.user-avatar-large {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name-large {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-email {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 0.25rem;
+}
+
+.user-dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0 0.5rem;
+}
+
+.user-dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.user-dropdown-item:hover {
+    background: var(--bg-secondary);
+}
+
+.user-dropdown-item span {
+    font-size: 1.1rem;
+}
+
+.user-dropdown-item:first-of-type {
+    border-radius: 0;
+}
+
+.user-dropdown-item:last-of-type {
+    border-radius: 0 0 10px 10px;
+    color: #ef4444;
+}
+
+.user-dropdown-item:last-of-type:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Progress indicator on theme cards */
+.theme-progress {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.theme-progress-title {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.theme-progress-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    color: var(--text-primary);
+}
+
+.theme-progress-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-progress-value {
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.theme-progress-value.completed::after {
+    content: ' ✓';
+    color: #10b981;
+}
+
+.theme-progress-value.not-completed {
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Mobile adaptations */
+@media (max-width: 768px) {
+    .nav-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .user-name {
+        max-width: 100px;
+    }
+    
+    .user-dropdown {
+        min-width: 260px;
+        right: -10px;
+    }
+    
+    .theme-progress {
+        font-size: 0.8rem;
+    }
+}
+
+/* Compact profile styles for game page */
+.nav-btn-compact {
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
+}
+
+.user-profile-compact {
+    margin-left: 0.5rem;
+}
+
+.user-profile-btn-compact {
+    padding: 0.4rem 0.75rem;
+    gap: 0.4rem;
+}
+
+.user-profile-btn-compact .user-name {
+    max-width: 80px;
+    font-size: 0.85rem;
+}
+
+.user-profile-btn-compact .user-avatar {
+    font-size: 1.1rem;
 }

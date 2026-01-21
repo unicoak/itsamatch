@@ -573,6 +573,64 @@
     }
     
     /* ────────────────────────────────────────────────────────
+       КАРТОЧКИ С ПРОГРЕСС-БАРОМ (ONE-TO-MANY) - СПЕЦИАЛЬНАЯ АДАПТАЦИЯ
+       ──────────────────────────────────────────────────────── */
+    
+    /**
+     * ПРОБЛЕМА: На мобильных карточки с прогресс-баром не работают
+     * 
+     * Почему?
+     * - Обычная карточка: 75px высота, 3 строки текста
+     * - Карточка с прогрессом: 75px высота, 3 строки текста + прогресс-бар
+     * - Прогресс-бар накладывается на текст или вылезает за границы
+     * 
+     * Решение:
+     * - Увеличиваем высоту карточки с прогрессом до 110px
+     * - Уменьшаем текст до 2 строк вместо 3
+     * - Делаем прогресс-бар тоньше
+     * - Используем flexbox для правильного расположения
+     */
+    .card.has-progress {
+        min-height: 85px;        /* Больше чем обычная (75px) */
+        max-height: 110px;       /* Больше чем обычная (100px) */
+        padding: 0.45rem 0.5rem; /* Оптимизированный padding */
+        
+        /* Flexbox для вертикального выравнивания */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    /**
+     * Текст в карточках с прогрессом
+     * Ограничиваем 2 строками чтобы освободить место
+     */
+    .card.has-progress .card-content {
+        -webkit-line-clamp: 2 !important;  /* Только 2 строки вместо 3 */
+        font-size: 0.68rem;                 /* Чуть меньше */
+        line-height: 1.25;                  /* Компактнее */
+        margin-bottom: 0;                   /* Убираем нижний отступ */
+        flex-shrink: 0;                     /* Не сжимаем текст */
+    }
+    
+    /**
+     * Прогресс-контейнер прижимаем к низу
+     */
+    .card.has-progress .progress-container {
+        margin-top: 0.3rem;
+        flex-shrink: 0;  /* Не сжимаем прогресс */
+    }
+    
+    .card.has-progress .progress-bar {
+        height: 2.5px;  /* Тоньше */
+    }
+    
+    .card.has-progress .progress-text {
+        font-size: 0.58rem;
+        margin-top: 0.1rem;
+    }
+    
+    /* ────────────────────────────────────────────────────────
        АНИМАЦИИ - УСКОРЕННЫЕ ДЛЯ МОБИЛЬНЫХ
        ──────────────────────────────────────────────────────── */
     
@@ -729,6 +787,29 @@
     .progress-text {
         font-size: 0.6rem;
     }
+    
+    /**
+     * Карточки с прогресс-баром на маленьких экранах
+     * Еще более компактные
+     */
+    .card.has-progress {
+        min-height: 75px;
+        max-height: 95px;
+        padding: 0.35rem 0.45rem;
+    }
+    
+    .card.has-progress .card-content {
+        font-size: 0.62rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    .card.has-progress .progress-bar {
+        height: 2px;
+    }
+    
+    .card.has-progress .progress-text {
+        font-size: 0.55rem;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -785,6 +866,34 @@
     .left-column .cards-container {
         padding-bottom: 0.375rem;
         margin-bottom: 0.375rem;
+    }
+    
+    /**
+     * Карточки с прогресс-баром в альбомной ориентации
+     * Очень компактные из-за ограниченной высоты экрана
+     */
+    .card.has-progress {
+        min-height: 70px;
+        max-height: 85px;
+        padding: 0.3rem 0.45rem;
+    }
+    
+    .card.has-progress .card-content {
+        font-size: 0.65rem;
+        -webkit-line-clamp: 2;
+        line-height: 1.2;
+    }
+    
+    .card.has-progress .progress-container {
+        margin-top: 0.25rem;
+    }
+    
+    .card.has-progress .progress-bar {
+        height: 2px;
+    }
+    
+    .card.has-progress .progress-text {
+        font-size: 0.55rem;
     }
 }
 

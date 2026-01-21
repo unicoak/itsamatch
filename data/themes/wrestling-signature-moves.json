@@ -13,124 +13,172 @@
   },
   "pairs": [
     {
-      "id": 1,
-      "left": "The Rock",
-      "right": "Rock Bottom",
-      "description": "Фирменный приём Скалы, ставший одним из самых узнаваемых в WWE"
-    },
-    {
-      "id": 2,
-      "left": "Stone Cold Steve Austin",
-      "right": "Stone Cold Stunner",
-      "description": "Резкий приём, после которого противники эффектно падали на ринг"
-    },
-    {
-      "id": 3,
-      "left": "The Undertaker",
-      "right": "Tombstone Piledriver",
-      "description": "Символ «Мертвеца», использовался десятилетиями"
-    },
-    {
-      "id": 4,
-      "left": "John Cena",
-      "right": "Attitude Adjustment",
-      "description": "Ранее известен как FU, стал визитной карточкой Сины"
-    },
-    {
-      "id": 5,
-      "left": "Triple H",
-      "right": "Pedigree",
-      "description": "Один из самых защищённых финишеров эпохи Attitude Era"
+      "id": 10,
+      "left": "Edge",
+      "right": "Spear",
+      "description": "Фирменный Spear Эджа отличался скоростью и резкостью",
+      "difficulty": 1
     },
     {
       "id": 6,
       "left": "Shawn Michaels",
       "right": "Sweet Chin Music",
-      "description": "Удар ногой, который мог прийти «из ниоткуда»"
+      "description": "Удар ногой, который мог прийти «из ниоткуда»",
+      "difficulty": 1
     },
     {
-      "id": 7,
-      "left": "Bret Hart",
-      "right": "Sharpshooter",
-      "description": "Канадский болевой приём, ставший легендарным"
+      "id": 1,
+      "left": "The Rock",
+      "right": "Rock Bottom",
+      "description": "Фирменный приём Скалы, ставший одним из самых узнаваемых в WWE",
+      "difficulty": 1
     },
     {
-      "id": 8,
-      "left": "Hulk Hogan",
-      "right": "Leg Drop",
-      "description": "Простой, но культовый приём, завершавший камбэк Халка"
-    },
-    {
-      "id": 9,
-      "left": "Randy Orton",
-      "right": "RKO",
-      "description": "Один из самых внезапных финишеров в истории рестлинга"
-    },
-    {
-      "id": 10,
-      "left": "Edge",
-      "right": "Spear",
-      "description": "Фирменный Spear Эджа отличался скоростью и резкостью"
-    },
-    {
-      "id": 11,
-      "left": "Brock Lesnar",
-      "right": "F-5",
-      "description": "Мощный вращающий бросок, подчёркивающий физическую доминацию"
-    },
-    {
-      "id": 12,
-      "left": "CM Punk",
-      "right": "Go To Sleep",
-      "description": "Комбинация подъёма и удара коленом в голову"
-    },
-    {
-      "id": 13,
-      "left": "Rey Mysterio",
-      "right": "619",
-      "description": "Акробатический приём с канатов, названный в честь кода района"
-    },
-    {
-      "id": 14,
-      "left": "Batista",
-      "right": "Batista Bomb",
-      "description": "Силовой приём, подчёркивающий мощь Батисты"
-    },
-    {
-      "id": 15,
-      "left": "Kane",
-      "right": "Chokeslam",
-      "description": "Фирменный Chokeslam демона Каина стал его визитной карточкой"
-    },
-    {
-      "id": 16,
-      "left": "Kurt Angle",
-      "right": "Angle Lock",
-      "description": "Болевой приём, основанный на реальной борцовской технике"
-    },
-    {
-      "id": 17,
-      "left": "Jeff Hardy",
-      "right": "Swanton Bomb",
-      "description": "Рискованный прыжок с высоты, ставший символом карьеры Харди"
+      "left": "People's Elbow",
+      "right": "Скала (The Rock)",
+      "description": "Театральный локоть с дорожки",
+      "difficulty": 1,
+      "id": 24
     },
     {
       "id": 18,
       "left": "Goldberg",
       "right": "Jackhammer",
-      "description": "Комбинация подъёма и суплекса, завершавшая его победную серию"
+      "description": "Комбинация подъёма и суплекса, завершавшая его победную серию",
+      "difficulty": 1
     },
     {
-      "id": 19,
-      "left": "AJ Styles",
-      "right": "Styles Clash",
-      "description": "Технически сложный финишер, ассоциирующийся только с AJ"
+      "id": 13,
+      "left": "Rey Mysterio",
+      "right": "619",
+      "description": "Акробатический приём с канатов, названный в честь кода района",
+      "difficulty": 1
+    },
+    {
+      "left": "Jackhammer",
+      "right": "Голдберг",
+      "description": "Вертикальный суплекс в пауэрбомб",
+      "difficulty": 2,
+      "id": 22
+    },
+    {
+      "id": 7,
+      "left": "Bret Hart",
+      "right": "Sharpshooter",
+      "description": "Канадский болевой приём, ставший легендарным",
+      "difficulty": 2
     },
     {
       "id": 20,
       "left": "Roman Reigns",
       "right": "Superman Punch",
-      "description": "Удар с разбега, ставший ключевой частью его образа"
+      "description": "Удар с разбега, ставший ключевой частью его образа",
+      "difficulty": 2
+    },
+    {
+      "id": 8,
+      "left": "Hulk Hogan",
+      "right": "Leg Drop",
+      "description": "Простой, но культовый приём, завершавший камбэк Халка",
+      "difficulty": 2
+    },
+    {
+      "id": 12,
+      "left": "CM Punk",
+      "right": "Go To Sleep",
+      "description": "Комбинация подъёма и удара коленом в голову",
+      "difficulty": 2
+    },
+    {
+      "id": 9,
+      "left": "Randy Orton",
+      "right": "RKO",
+      "description": "Один из самых внезапных финишеров в истории рестлинга",
+      "difficulty": 2
+    },
+    {
+      "left": "Rock Bottom",
+      "right": "Скала (The Rock)",
+      "description": "Боковой слэм с силовым броском",
+      "difficulty": 3,
+      "id": 23
+    },
+    {
+      "id": 3,
+      "left": "The Undertaker",
+      "right": "Tombstone Piledriver",
+      "description": "Символ «Мертвеца», использовался десятилетиями",
+      "difficulty": 3
+    },
+    {
+      "id": 14,
+      "left": "Batista",
+      "right": "Batista Bomb",
+      "description": "Силовой приём, подчёркивающий мощь Батисты",
+      "difficulty": 3
+    },
+    {
+      "id": 5,
+      "left": "Triple H",
+      "right": "Pedigree",
+      "description": "Один из самых защищённых финишеров эпохи Attitude Era",
+      "difficulty": 3
+    },
+    {
+      "left": "Спир (Spear)",
+      "right": "Голдберг",
+      "description": "Мощный силовой прием с разбега",
+      "difficulty": 3,
+      "id": 21
+    },
+    {
+      "id": 4,
+      "left": "John Cena",
+      "right": "Attitude Adjustment",
+      "description": "Ранее известен как FU, стал визитной карточкой Сины",
+      "difficulty": 3
+    },
+    {
+      "id": 2,
+      "left": "Stone Cold Steve Austin",
+      "right": "Stone Cold Stunner",
+      "description": "Резкий приём, после которого противники эффектно падали на ринг",
+      "difficulty": 3
+    },
+    {
+      "id": 17,
+      "left": "Jeff Hardy",
+      "right": "Swanton Bomb",
+      "description": "Рискованный прыжок с высоты, ставший символом карьеры Харди",
+      "difficulty": 3
+    },
+    {
+      "id": 19,
+      "left": "AJ Styles",
+      "right": "Styles Clash",
+      "description": "Технически сложный финишер, ассоциирующийся только с AJ",
+      "difficulty": 3
+    },
+    {
+      "id": 16,
+      "left": "Kurt Angle",
+      "right": "Angle Lock",
+      "description": "Болевой приём, основанный на реальной борцовской технике",
+      "difficulty": 3
+    },
+    {
+      "id": 11,
+      "left": "Brock Lesnar",
+      "right": "F-5",
+      "description": "Мощный вращающий бросок, подчёркивающий физическую доминацию",
+      "difficulty": 3
+    },
+    {
+      "id": 15,
+      "left": "Kane",
+      "right": "Chokeslam",
+      "description": "Фирменный Chokeslam демона Каина стал его визитной карточкой",
+      "difficulty": 3
     }
   ]
 }

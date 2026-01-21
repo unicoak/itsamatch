@@ -29,6 +29,37 @@
                         <option value="dark-alt">🔥 Синяя</option>
                     </select>
                 </div>
+                
+                <!-- Кнопка входа (до авторизации) -->
+                <a href="login.html" id="login-btn" class="nav-btn">
+                    🔐 Войти
+                </a>
+                
+                <!-- Профиль пользователя (после авторизации) -->
+                <div id="user-profile" class="user-profile" style="display: none;">
+                    <button class="user-profile-btn" id="user-profile-toggle">
+                        <span class="user-avatar">👤</span>
+                        <span class="user-name" id="user-name">Игрок</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="user-avatar-large">👤</div>
+                            <div class="user-info">
+                                <div class="user-name-large" id="user-name-large">Игрок</div>
+                                <div class="user-email" id="user-email">email@example.com</div>
+                            </div>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <button class="user-dropdown-item" id="view-stats-btn">
+                            <span>📊</span> Моя статистика
+                        </button>
+                        <button class="user-dropdown-item" id="logout-btn">
+                            <span>🚪</span> Выйти
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -53,6 +84,82 @@
             <p>Разработал <a href="#">Don Su</a></p>
         </footer>
     </main>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         МОДАЛЬНОЕ ОКНО ВЫБОРА СЛОЖНОСТИ
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="difficulty-modal" class="difficulty-modal hidden">
+        <div class="difficulty-overlay"></div>
+        <div class="difficulty-content">
+            <button class="difficulty-close" aria-label="Закрыть">×</button>
+            
+            <div class="difficulty-header">
+                <div class="difficulty-theme-icon"></div>
+                <h2 class="difficulty-theme-title"></h2>
+            </div>
+            
+            <p class="difficulty-description">
+                Выберите уровень сложности для игры:
+            </p>
+            
+            <div class="difficulty-options">
+                <!-- ⭐ Лёгкая -->
+                <button class="difficulty-option" data-difficulty="1">
+                    <div class="difficulty-option-header">
+                        <span class="difficulty-option-stars">⭐</span>
+                        <span class="difficulty-option-title">Лёгкая</span>
+                    </div>
+                    <div class="difficulty-option-details">
+                        <p class="difficulty-option-pairs">12 пар</p>
+                        <p class="difficulty-option-composition">10 простых + 2 средних</p>
+                    </div>
+                    <p class="difficulty-option-description">
+                        Идеально для начинающих и знакомства с темой
+                    </p>
+                </button>
+                
+                <!-- ⭐⭐ Средняя -->
+                <button class="difficulty-option" data-difficulty="2">
+                    <div class="difficulty-option-header">
+                        <span class="difficulty-option-stars">⭐⭐</span>
+                        <span class="difficulty-option-title">Средняя</span>
+                    </div>
+                    <div class="difficulty-option-details">
+                        <p class="difficulty-option-pairs">18 пар</p>
+                        <p class="difficulty-option-composition">6 простых + 9 средних + 3 сложных</p>
+                    </div>
+                    <p class="difficulty-option-description">
+                        Сбалансированный вызов для опытных игроков
+                    </p>
+                </button>
+                
+                <!-- ⭐⭐⭐ Тяжёлая -->
+                <button class="difficulty-option" data-difficulty="3">
+                    <div class="difficulty-option-header">
+                        <span class="difficulty-option-stars">⭐⭐⭐</span>
+                        <span class="difficulty-option-title">Тяжёлая</span>
+                    </div>
+                    <div class="difficulty-option-details">
+                        <p class="difficulty-option-pairs">24 пары</p>
+                        <p class="difficulty-option-composition">6 простых + 6 средних + 12 сложных</p>
+                    </div>
+                    <p class="difficulty-option-description">
+                        Только для экспертов! Проверьте свои знания
+                    </p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Auth System -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/progress.js"></script>
 
     <script src="js/main.js"></script>
 </body>

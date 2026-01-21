@@ -1,6 +1,6 @@
 /**
  * Менеджер взаимодействия с карточками
- * Поддерживает: клики, drag-and-drop (desktop), touch (mobile)
+ * Поддерживает: клики, drag-and-drop (desktop), touch (mobile), long press tooltip
  */
 
 class DragDropManager {
@@ -9,6 +9,14 @@ class DragDropManager {
         this.selectedCard = null; // Выбранная карточка (для кликов)
         this.draggedElement = null;
         this.touchClone = null;
+        
+        // Long press для показа полного текста
+        this.longPressTimer = null;
+        this.longPressTimeout = 500; // 500ms для long press
+        this.isLongPressActive = false;
+        this.currentTooltip = null;
+        this.touchStartPos = { x: 0, y: 0 };
+        this.hasMoved = false;
     }
 
     init() {
@@ -38,10 +46,29 @@ class DragDropManager {
         card.addEventListener('dragstart', (e) => this.handleDragStart(e, card));
         card.addEventListener('dragend', (e) => this.handleDragEnd(e, card));
         
-        // Mobile touch
-        card.addEventListener('touchstart', (e) => this.handleTouchStart(e, card), { passive: false });
-        card.addEventListener('touchmove', (e) => this.handleTouchMove(e, card), { passive: false });
-        card.addEventListener('touchend', (e) => this.handleTouchEnd(e, card));
+        // Mobile touch (с поддержкой long press)
+        card.addEventListener('touchstart', (e) => {
+            // Запускаем long press таймер
+            if (e.touches.length === 1) {
+                this.startLongPress(card, e.touches[0]);
+            }
+            this.handleTouchStart(e, card);
+        }, { passive: false });
+        
+        card.addEventListener('touchmove', (e) => {
+            // Проверяем не двигается ли палец (для long press)
+            if (e.touches.length === 1) {
+                this.checkTouchMovement(e.touches[0]);
+            }
+            this.handleTouchMove(e, card);
+        }, { passive: false });
+        
+        card.addEventListener('touchend', (e) => {
+            // Отменяем long press и скрываем tooltip
+            this.cancelLongPress();
+            this.hideFullTextTooltip();
+            this.handleTouchEnd(e, card);
+        });
     }
 
     addLeftCardListeners(card) {
@@ -52,6 +79,27 @@ class DragDropManager {
         card.addEventListener('dragover', (e) => this.handleDragOver(e, card));
         card.addEventListener('dragleave', (e) => this.handleDragLeave(e, card));
         card.addEventListener('drop', (e) => this.handleDrop(e, card));
+        
+        // Mobile touch для long press (левые карточки не draggable, но нужен long press)
+        card.addEventListener('touchstart', (e) => {
+            // Запускаем long press таймер
+            if (e.touches.length === 1) {
+                this.startLongPress(card, e.touches[0]);
+            }
+        }, { passive: false });
+        
+        card.addEventListener('touchmove', (e) => {
+            // Проверяем не двигается ли палец
+            if (e.touches.length === 1) {
+                this.checkTouchMovement(e.touches[0]);
+            }
+        }, { passive: false });
+        
+        card.addEventListener('touchend', (e) => {
+            // Отменяем long press и скрываем tooltip
+            this.cancelLongPress();
+            this.hideFullTextTooltip();
+        });
     }
 
     // ============ МЕХАНИКА КЛИКОВ ============
@@ -85,6 +133,12 @@ class DragDropManager {
         if (!this.selectedCard) {
             this.selectedCard = card;
             card.classList.add('selected');
+            
+            // 🔊 Звук клика
+            if (window.soundManager) {
+                window.soundManager.playClick();
+            }
+            
             return;
         }
         
@@ -94,6 +148,12 @@ class DragDropManager {
             this.deselectCard();
             this.selectedCard = card;
             card.classList.add('selected');
+            
+            // 🔊 Звук клика
+            if (window.soundManager) {
+                window.soundManager.playClick();
+            }
+            
             return;
         }
         
@@ -323,6 +383,141 @@ class DragDropManager {
         
         console.log('DragDropManager состояние очищено');
     }
+    
+    /**
+     * ═══════════════════════════════════════════════════════════════
+     * LONG PRESS TOOLTIP - ПОКАЗ ПОЛНОГО ТЕКСТА
+     * ═══════════════════════════════════════════════════════════════
+     * 
+     * Когда пользователь зажимает карточку на 500ms,
+     * появляется tooltip с полным текстом карточки.
+     * 
+     * Зачем?
+     * На мобильных карточки обрезаются: "Александр Серге..."
+     * Long press позволяет увидеть полный текст без перехода в модалку
+     */
+    
+    /**
+     * Запуск таймера long press
+     */
+    startLongPress(card, touch) {
+        // Сохраняем начальную позицию касания
+        this.touchStartPos = {
+            x: touch.clientX,
+            y: touch.clientY
+        };
+        this.hasMoved = false;
+        
+        // Запускаем таймер на 500ms
+        this.longPressTimer = setTimeout(() => {
+            // Если палец не двигался - показываем tooltip
+            if (!this.hasMoved) {
+                this.showFullTextTooltip(card);
+            }
+        }, this.longPressTimeout);
+    }
+    
+    /**
+     * Отмена long press (палец двинулся или отпущен)
+     */
+    cancelLongPress() {
+        if (this.longPressTimer) {
+            clearTimeout(this.longPressTimer);
+            this.longPressTimer = null;
+        }
+        
+        this.isLongPressActive = false;
+    }
+    
+    /**
+     * Проверка движения пальца
+     */
+    checkTouchMovement(touch) {
+        const deltaX = Math.abs(touch.clientX - this.touchStartPos.x);
+        const deltaY = Math.abs(touch.clientY - this.touchStartPos.y);
+        
+        // Если сдвинулся больше чем на 10px - это уже не long press
+        if (deltaX > 10 || deltaY > 10) {
+            this.hasMoved = true;
+            this.cancelLongPress();
+        }
+    }
+    
+    /**
+     * Показать tooltip с полным текстом
+     */
+    showFullTextTooltip(card) {
+        // Устанавливаем флаг что long press активен
+        this.isLongPressActive = true;
+        
+        // Получаем полный текст из карточки
+        const cardContent = card.querySelector('.card-content');
+        if (!cardContent) return;
+        
+        const fullText = cardContent.textContent;
+        
+        // Создаём tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'long-press-tooltip';
+        
+        // Иконка
+        const icon = document.createElement('div');
+        icon.className = 'tooltip-icon';
+        icon.textContent = '📝';
+        
+        // Текст
+        const text = document.createElement('div');
+        text.className = 'tooltip-text';
+        text.textContent = fullText;
+        
+        // Hint
+        const hint = document.createElement('div');
+        hint.className = 'tooltip-hint';
+        hint.textContent = 'Отпустите чтобы закрыть';
+        
+        tooltip.appendChild(icon);
+        tooltip.appendChild(text);
+        tooltip.appendChild(hint);
+        
+        // Добавляем на страницу
+        document.body.appendChild(tooltip);
+        
+        // Сохраняем ссылку
+        this.currentTooltip = tooltip;
+        
+        // Плавное появление
+        requestAnimationFrame(() => {
+            tooltip.classList.add('show');
+        });
+        
+        // Вибрация для тактильной обратной связи (если поддерживается)
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // Короткая вибрация
+        }
+        
+        console.log('✅ Long press tooltip показан:', fullText);
+    }
+    
+    /**
+     * Скрыть tooltip
+     */
+    hideFullTextTooltip() {
+        if (this.currentTooltip) {
+            // Плавное исчезновение
+            this.currentTooltip.classList.remove('show');
+            
+            // Удаляем из DOM через 300ms (длительность анимации)
+            setTimeout(() => {
+                if (this.currentTooltip && this.currentTooltip.parentNode) {
+                    this.currentTooltip.parentNode.removeChild(this.currentTooltip);
+                }
+                this.currentTooltip = null;
+            }, 300);
+        }
+        
+        this.isLongPressActive = false;
+        console.log('❌ Long press tooltip скрыт');
+    }
 }
 
 // Добавляем CSS для анимаций
@@ -349,6 +544,118 @@ const styles = `
 /* Touch clone */
 .touch-clone {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LONG PRESS TOOLTIP - ПОКАЗ ПОЛНОГО ТЕКСТА
+   ═══════════════════════════════════════════════════════════
+   
+   Когда пользователь зажимает карточку на 500ms,
+   появляется tooltip с полным текстом.
+*/
+
+.long-press-tooltip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    max-width: 85%;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+    border: 2px solid var(--accent-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+
+.long-press-tooltip.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.long-press-tooltip .tooltip-icon {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 0.75rem;
+    animation: tooltipBounce 0.5s ease;
+}
+
+@keyframes tooltipBounce {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.long-press-tooltip .tooltip-text {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    word-wrap: break-word;
+}
+
+.long-press-tooltip .tooltip-hint {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Затемнение фона при показе tooltip */
+.long-press-tooltip::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.long-press-tooltip.show::before {
+    opacity: 1;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .long-press-tooltip {
+        max-width: 90%;
+        padding: 1.25rem;
+    }
+    
+    .long-press-tooltip .tooltip-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .long-press-tooltip .tooltip-text {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .long-press-tooltip .tooltip-hint {
+        font-size: 0.75rem;
+    }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 374px) {
+    .long-press-tooltip {
+        padding: 1rem;
+    }
+    
+    .long-press-tooltip .tooltip-text {
+        font-size: 0.9rem;
+    }
 }
 `;
 

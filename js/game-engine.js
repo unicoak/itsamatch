@@ -276,6 +276,14 @@ class GameEngine {
         this.maxCombo = 0;
         
         /**
+         * startTime - Время начала игры (timestamp)
+         * 
+         * Устанавливается при первом рендере доски
+         * Используется для подсчёта длительности игры
+         */
+        this.startTime = null;
+        
+        /**
          * correctAnswers - Количество правильных ответов
          * 
          * Используется для:
@@ -409,11 +417,16 @@ class GameEngine {
     async init() {
         const urlParams = new URLSearchParams(window.location.search);
         const themeId = urlParams.get('theme');
+        const difficulty = parseInt(urlParams.get('difficulty')) || 2; // По умолчанию средняя
         
         if (!themeId) {
             this.showError('Тема не выбрана');
             return;
         }
+        
+        // Сохраняем выбранную сложность
+        this.selectedDifficulty = difficulty;
+        console.log(`🎯 Выбрана сложность: ${difficulty} (${this.getDifficultyName(difficulty)})`);
         
         // Инициализируем DOM элементы ПОСЛЕ загрузки DOM
         this.initDOMElements();
@@ -427,6 +440,18 @@ class GameEngine {
             console.error('Ошибка инициализации игры:', error);
             this.showError('Не удалось загрузить игру');
         }
+    }
+    
+    /**
+     * Получить название сложности
+     */
+    getDifficultyName(difficulty) {
+        const names = {
+            1: 'Лёгкая ⭐',
+            2: 'Средняя ⭐⭐',
+            3: 'Тяжёлая ⭐⭐⭐'
+        };
+        return names[difficulty] || 'Неизвестная';
     }
     
     /**
@@ -752,8 +777,17 @@ class GameEngine {
              * при перемешивании
              * 
              * Spread оператор [...] создаёт поверхностную копию
+             * 
+             * НОВОЕ: Подбираем пары по выбранной сложности
              */
-            this.allPairs = [...this.themeData.pairs];
+            
+            // Подбираем пары в соответствии с правилами сложности
+            const selectedPairs = this.selectPairsByDifficulty(
+                this.themeData.pairs,
+                this.selectedDifficulty
+            );
+            
+            this.allPairs = selectedPairs;
             
             /**
              * Перемешиваем пары для случайного порядка
@@ -762,6 +796,7 @@ class GameEngine {
             this.shuffleArray(this.allPairs);
             
             console.log(`✅ Тема успешно загружена: "${this.themeData.title}"`);
+            console.log(`   🎯 Сложность: ${this.getDifficultyName(this.selectedDifficulty)}`);
             console.log(`   📊 Количество пар: ${this.allPairs.length}`);
             console.log(`   🎮 Режим: ${this.themeData.type || 'one-to-one'}`);
             
@@ -781,6 +816,179 @@ class GameEngine {
              */
             throw error;
         }
+    }
+    
+    /**
+     * ═══════════════════════════════════════════════════════════════════
+     * ПОДБОР ПАР ПО СЛОЖНОСТИ
+     * ═══════════════════════════════════════════════════════════════════
+     * 
+     * Выбирает случайный набор пар в соответствии с правилами сложности:
+     * 
+     * ⭐ Лёгкая (1): 12 пар = 10 простых + 2 средних
+     * ⭐⭐ Средняя (2): 18 пар = 6 простых + 9 средних + 3 сложных
+     * ⭐⭐⭐ Тяжёлая (3): 24 пары = 6 простых + 6 средних + 12 сложных
+     * 
+     * @param {Array} allPairs - Все доступные пары
+     * @param {Number} difficulty - Выбранная сложность (1, 2, или 3)
+     * @returns {Array} - Подобранные пары
+     */
+    selectPairsByDifficulty(allPairs, difficulty) {
+        console.log('🎯 Подбор пар по сложности...');
+        
+        // ═══════════════════════════════════════════════════════
+        // ГРУППИРОВКА ПАР ПО СЛОЖНОСТИ
+        // ═══════════════════════════════════════════════════════
+        
+        // Если у пар нет поля difficulty - считаем их средними
+        const pairsWithDifficulty = allPairs.map(p => ({
+            ...p,
+            difficulty: p.difficulty || 2
+        }));
+        
+        const easyPairs = pairsWithDifficulty.filter(p => p.difficulty === 1);
+        const mediumPairs = pairsWithDifficulty.filter(p => p.difficulty === 2);
+        const hardPairs = pairsWithDifficulty.filter(p => p.difficulty === 3);
+        
+        console.log(`   📦 Доступно пар:`);
+        console.log(`      ⭐ Простых: ${easyPairs.length}`);
+        console.log(`      ⭐⭐ Средних: ${mediumPairs.length}`);
+        console.log(`      ⭐⭐⭐ Сложных: ${hardPairs.length}`);
+        
+        // ═══════════════════════════════════════════════════════
+        // ПРАВИЛА ПОДБОРА
+        // ═══════════════════════════════════════════════════════
+        
+        const rules = {
+            1: { easy: 10, medium: 2, hard: 0, total: 12 },    // Лёгкая
+            2: { easy: 6, medium: 9, hard: 3, total: 18 },     // Средняя
+            3: { easy: 6, medium: 6, hard: 12, total: 24 }     // Тяжёлая
+        };
+        
+        const rule = rules[difficulty];
+        
+        if (!rule) {
+            console.error(`❌ Неизвестная сложность: ${difficulty}, используем среднюю`);
+            return this.selectPairsByDifficulty(allPairs, 2);
+        }
+        
+        console.log(`   📋 Правила для сложности ${difficulty}:`);
+        console.log(`      Нужно: ${rule.easy} простых + ${rule.medium} средних + ${rule.hard} сложных = ${rule.total} пар`);
+        
+        // ═══════════════════════════════════════════════════════
+        // ПОДБОР С FALLBACK МЕХАНИЗМОМ
+        // ═══════════════════════════════════════════════════════
+        
+        const selected = [];
+        const pools = {
+            easy: [...easyPairs],
+            medium: [...mediumPairs],
+            hard: [...hardPairs]
+        };
+        
+        // Функция добавления пар с fallback
+        const addPairs = (preferredPool, count, poolName) => {
+            const added = [];
+            
+            // Сначала берём из предпочитаемого пула
+            while (added.length < count && pools[preferredPool].length > 0) {
+                const randomIndex = Math.floor(Math.random() * pools[preferredPool].length);
+                added.push(pools[preferredPool].splice(randomIndex, 1)[0]);
+            }
+            
+            // Если не хватило - берём из других пулов (fallback)
+            if (added.length < count) {
+                console.warn(`⚠️ Недостаточно ${poolName} пар: ${added.length}/${count}, применяем fallback`);
+                
+                // Пробуем другие пулы в порядке приоритета
+                const fallbackOrder = preferredPool === 'easy' 
+                    ? ['medium', 'hard']
+                    : preferredPool === 'medium'
+                    ? ['easy', 'hard']
+                    : ['medium', 'easy'];
+                
+                for (const fallbackPool of fallbackOrder) {
+                    while (added.length < count && pools[fallbackPool].length > 0) {
+                        const randomIndex = Math.floor(Math.random() * pools[fallbackPool].length);
+                        added.push(pools[fallbackPool].splice(randomIndex, 1)[0]);
+                    }
+                    if (added.length >= count) break;
+                }
+            }
+            
+            return added;
+        };
+        
+        // Добавляем простые пары
+        if (rule.easy > 0) {
+            const addedEasy = addPairs('easy', rule.easy, 'простых');
+            selected.push(...addedEasy);
+            console.log(`   ✅ Добавлено ${addedEasy.length} простых пар (нужно было ${rule.easy})`);
+        }
+        
+        // Добавляем средние пары
+        if (rule.medium > 0) {
+            const addedMedium = addPairs('medium', rule.medium, 'средних');
+            selected.push(...addedMedium);
+            console.log(`   ✅ Добавлено ${addedMedium.length} средних пар (нужно было ${rule.medium})`);
+        }
+        
+        // Добавляем сложные пары
+        if (rule.hard > 0) {
+            const addedHard = addPairs('hard', rule.hard, 'сложных');
+            selected.push(...addedHard);
+            console.log(`   ✅ Добавлено ${addedHard.length} сложных пар (нужно было ${rule.hard})`);
+        }
+        
+        console.log(`   🎲 Итого подобрано: ${selected.length} пар`);
+        
+        // ═══════════════════════════════════════════════════════
+        // ФИНАЛЬНАЯ ПРОВЕРКА
+        // ═══════════════════════════════════════════════════════
+        
+        // Если совсем не хватило - добавляем любые оставшиеся пары
+        if (selected.length < rule.total) {
+            console.warn(`⚠️ Всё ещё не хватает пар: ${selected.length}/${rule.total}`);
+            console.warn(`   Добавляем оставшиеся доступные пары...`);
+            
+            const allRemaining = [...pools.easy, ...pools.medium, ...pools.hard];
+            while (selected.length < rule.total && allRemaining.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allRemaining.length);
+                selected.push(allRemaining.splice(randomIndex, 1)[0]);
+            }
+            
+            console.log(`   🔄 После добавления остатков: ${selected.length} пар`);
+        }
+        
+        // Если ВСЕГО пар в теме меньше чем нужно - показываем ошибку но не крашим игру
+        if (selected.length < rule.total) {
+            console.error(`❌ В теме недостаточно пар для этой сложности!`);
+            console.error(`   Требуется: ${rule.total}, доступно: ${selected.length}`);
+            console.error(`   Игра будет работать с уменьшенным количеством пар`);
+        }
+        
+        return selected;
+    }
+    
+    /**
+     * Выбрать N случайных элементов из массива
+     * @param {Array} array - Исходный массив
+     * @param {Number} count - Сколько элементов выбрать
+     * @returns {Array} - Случайные элементы
+     */
+    getRandomItems(array, count) {
+        // Создаём копию чтобы не менять оригинал
+        const shuffled = [...array];
+        
+        // Перемешиваем
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        
+        // Берём первые count элементов
+        // Если count больше длины массива, вернётся весь массив
+        return shuffled.slice(0, Math.min(count, shuffled.length));
     }
 
     /**
@@ -997,6 +1205,12 @@ class GameEngine {
     }
 
     fillBoard() {
+        // Устанавливаем время начала игры (только один раз)
+        if (!this.startTime) {
+            this.startTime = Date.now();
+            console.log('⏱️ Игра началась:', new Date(this.startTime).toLocaleTimeString());
+        }
+        
         // Заполняем доску начальными карточками с ГАРАНТИЕЙ совместимых пар
         this.leftCards = [];
         this.rightCards = [];
@@ -1201,8 +1415,21 @@ class GameEngine {
         
         card.appendChild(content);
         
-        // Если это левая карточка с one-to-many, добавляем прогресс-бар
+        /**
+         * ═══════════════════════════════════════════════════════
+         * ПРОГРЕСС-БАР ДЛЯ ONE-TO-MANY РЕЖИМА
+         * ═══════════════════════════════════════════════════════
+         * 
+         * Если это левая карточка с прогрессом (one-to-many режим),
+         * добавляем прогресс-бар показывающий сколько правых карточек
+         * уже найдено для этой левой.
+         * 
+         * ВАЖНО: Добавляем класс 'has-progress' для мобильной адаптации
+         */
         if (cardData.side === 'left' && cardData.totalMatches !== undefined) {
+            // Добавляем специальный класс для мобильных стилей
+            card.classList.add('has-progress');
+            
             const progressContainer = document.createElement('div');
             progressContainer.className = 'progress-container';
             
@@ -1295,6 +1522,11 @@ class GameEngine {
             this.isProcessing = true;
             this.processingStartTime = Date.now();
             
+            // 🔊 Звук успеха
+            if (window.soundManager) {
+                window.soundManager.playSuccess();
+            }
+            
             // НЕ увеличиваем correctAnswers и combo здесь - это сделает handleMatch
             this.addScore(50);
             this.handleMatch(draggedCard, targetCard, draggedPairId);
@@ -1304,6 +1536,12 @@ class GameEngine {
             this.incorrectAnswers++;
             this.subtractScore(10);
             this.resetCombo();
+            
+            // 🔊 Звук ошибки
+            if (window.soundManager) {
+                window.soundManager.playError();
+            }
+            
             this.showIncorrectMatch(draggedCard, targetCard);
             return false;
         }
@@ -1825,6 +2063,11 @@ class GameEngine {
             const comboBonus = this.calculateComboBonus();
             this.addScore(comboBonus);
             this.showComboBonus(comboBonus);
+            
+            // 🔊 Звук комбо
+            if (window.soundManager) {
+                window.soundManager.playCombo();
+            }
         }
         
         this.updateComboDisplay();
@@ -1885,10 +2128,57 @@ class GameEngine {
     // ============ ЗАВЕРШЕНИЕ И СБРОС ============
 
     completeGame() {
+        // 🔊 Звук победы!
+        if (window.soundManager) {
+            window.soundManager.playVictory();
+        }
+        
+        // 💾 Сохраняем прогресс
+        this.saveProgress();
+        
         if (this.completionScreen) {
             this.completionScreen.classList.remove('hidden');
             this.updateCompletionStats();
         }
+    }
+    
+    /**
+     * Сохранение прогресса в Firebase
+     */
+    saveProgress() {
+        if (!window.progressManager || !window.authManager || !window.authManager.isLoggedIn()) {
+            console.log('⚠️ Прогресс не сохранён - пользователь не вошёл');
+            return;
+        }
+        
+        const accuracy = this.correctAnswers / (this.correctAnswers + this.incorrectAnswers) * 100 || 100;
+        const duration = this.getGameDuration();
+        
+        const results = {
+            score: this.score,
+            correct: this.correctAnswers,
+            incorrect: this.incorrectAnswers,
+            accuracy: accuracy,
+            combo: this.maxCombo,
+            completed: true,
+            duration: duration
+        };
+        
+        console.log('💾 Сохраняем прогресс:', results);
+        
+        window.progressManager.saveGameResult(
+            this.themeData.id,
+            this.selectedDifficulty,
+            results
+        );
+    }
+    
+    /**
+     * Получить длительность игры в секундах
+     */
+    getGameDuration() {
+        if (!this.startTime) return 0;
+        return Math.floor((Date.now() - this.startTime) / 1000);
     }
 
     updateCompletionStats() {
@@ -1989,7 +2279,152 @@ class GameEngine {
     }
 }
 
-// Инициализация при загрузке страницы
-window.addEventListener('DOMContentLoaded', () => {
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * ИНИЦИАЛИЗАЦИЯ ИГРЫ
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+// Глобальная функция для полной очистки и переинициализации
+function cleanupAndInitGame() {
+    console.log('🔄 Очистка и инициализация игры...');
+    
+    /**
+     * ШAГА 1: Очистка старого экземпляра
+     * ──────────────────────────────────────────────────
+     * 
+     * ВАЖНО: Если пользователь использует кнопку "назад" в браузере
+     * и выбирает новую тему, старый gameEngine может остаться в памяти
+     * со всеми его event listeners. Это приводит к багу:
+     * - Drag & Drop не работает
+     * - Клики не обрабатываются
+     * - Карточки "мертвые"
+     * 
+     * Решение: перед созданием нового gameEngine очищаем старый
+     */
+    if (window.gameEngine) {
+        console.log('⚠️ Обнаружен старый gameEngine, очищаем...');
+        
+        // Очищаем старые таймеры если есть
+        if (window.gameEngine.activeTimeouts) {
+            window.gameEngine.activeTimeouts.forEach(id => clearTimeout(id));
+        }
+        
+        // Удаляем ссылку
+        window.gameEngine = null;
+    }
+    
+    /**
+     * ШАГ 2: Очистка старого DragDropManager
+     * ──────────────────────────────────────────────────
+     */
+    if (window.dragDropManager) {
+        console.log('⚠️ Обнаружен старый dragDropManager, очищаем...');
+        
+        // Очищаем выбранные карточки
+        if (window.dragDropManager.selectedCard) {
+            window.dragDropManager.selectedCard.classList.remove('selected');
+            window.dragDropManager.selectedCard = null;
+        }
+        
+        if (window.dragDropManager.touchClone) {
+            window.dragDropManager.touchClone.remove();
+            window.dragDropManager.touchClone = null;
+        }
+        
+        // Удаляем ссылку
+        window.dragDropManager = null;
+    }
+    
+    /**
+     * ШАГ 3: Удаление всех старых обработчиков событий
+     * ──────────────────────────────────────────────────
+     * 
+     * Самый надёжный способ удалить все listeners - заменить элементы
+     * их клонами через cloneNode(true). Это создаёт полные копии
+     * без event listeners.
+     */
+    const leftCards = document.getElementById('left-cards');
+    const rightCards = document.getElementById('right-cards');
+    
+    if (leftCards) {
+        const newLeftCards = leftCards.cloneNode(false); // Пустой clone
+        newLeftCards.id = 'left-cards';
+        newLeftCards.className = leftCards.className;
+        leftCards.parentNode.replaceChild(newLeftCards, leftCards);
+        console.log('✅ Левые карточки очищены');
+    }
+    
+    if (rightCards) {
+        const newRightCards = rightCards.cloneNode(false); // Пустой clone
+        newRightCards.id = 'right-cards';
+        newRightCards.className = rightCards.className;
+        rightCards.parentNode.replaceChild(newRightCards, rightCards);
+        console.log('✅ Правые карточки очищены');
+    }
+    
+    /**
+     * ШАГ 4: Создание нового gameEngine
+     * ──────────────────────────────────────────────────
+     * 
+     * Теперь безопасно создаём новый экземпляр.
+     * Все старые listeners удалены, память очищена.
+     */
+    console.log('✅ Создаём новый gameEngine');
     window.gameEngine = new GameEngine();
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * EVENT LISTENERS ДЛЯ ИНИЦИАЛИЗАЦИИ
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * DOMContentLoaded - первая загрузка страницы
+ * Срабатывает когда HTML загружен и DOM готов
+ */
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOMContentLoaded - первая загрузка');
+    cleanupAndInitGame();
+});
+
+/**
+ * pageshow - КРИТИЧЕСКИ ВАЖНО для browser back/forward
+ * 
+ * Зачем нужен этот listener?
+ * ─────────────────────────────────────────────────────
+ * 
+ * Когда пользователь использует кнопку "назад" в браузере,
+ * современные браузеры используют bfcache (back/forward cache).
+ * 
+ * Что это означает?
+ * - Страница НЕ перезагружается полностью
+ * - JavaScript остаётся в памяти
+ * - DOMContentLoaded НЕ срабатывает
+ * - НО HTML и URL могут измениться
+ * 
+ * Результат без pageshow:
+ * - Старый gameEngine с темой A остаётся в памяти
+ * - URL меняется на game.html?theme=B
+ * - gameEngine пытается загрузить тему B
+ * - НО старые listeners от темы A всё ещё активны
+ * - Drag & Drop НЕ РАБОТАЕТ ❌
+ * 
+ * Решение:
+ * - Слушаем pageshow с persisted=true
+ * - persisted=true означает загрузка из bfcache
+ * - Принудительно очищаем и переинициализируем
+ */
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        console.log('🔄 pageshow (persisted) - восстановление из bfcache');
+        console.log('   Это означает что пользователь использовал browser back');
+        console.log('   Принудительно переинициализируем игру...');
+        
+        // Небольшая задержка для стабильности
+        setTimeout(() => {
+            cleanupAndInitGame();
+        }, 50);
+    }
 });

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход | Игра на сопоставление</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Логотип и название -->
+            <div class="auth-header">
+                <h1 class="auth-logo">🎮</h1>
+                <h2 class="auth-title">Игра на сопоставление</h2>
+                <p class="auth-subtitle">Войдите чтобы сохранять прогресс</p>
+            </div>
+
+            <!-- Вкладки: Вход / Регистрация -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 ФОРМА ВХОДА
+                 ═══════════════════════════════════════════════════════ -->
+            <div id="login-form" class="auth-form active">
+                <form id="login-form-element">
+                    <div class="form-group">
+                        <label for="login-email">📧 Email</label>
+                        <input 
+                            type="email" 
+                            id="login-email" 
+                            class="form-input" 
+                            placeholder="your@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">🔒 Пароль</label>
+                        <input 
+                            type="password" 
+                            id="login-password" 
+                            class="form-input" 
+                            placeholder="••••••••"
+                            required
+                            autocomplete="current-password"
+                        >
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="remember-me">
+                            <span>Запомнить меня</span>
+                        </label>
+                        <a href="#" class="forgot-password">Забыли пароль?</a>
+                    </div>
+
+                    <button type="submit" class="auth-button primary">
+                        Войти
+                    </button>
+
+                    <div class="form-divider">или</div>
+
+                    <button type="button" class="auth-button guest" id="guest-btn">
+                        <span>🎮</span> Играть без регистрации
+                    </button>
+                </form>
+
+                <div class="auth-message" id="login-message"></div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 ФОРМА РЕГИСТРАЦИИ
+                 ═══════════════════════════════════════════════════════ -->
+            <div id="register-form" class="auth-form">
+                <form id="register-form-element">
+                    <div class="form-group">
+                        <label for="register-name">👤 Имя игрока</label>
+                        <input 
+                            type="text" 
+                            id="register-name" 
+                            class="form-input" 
+                            placeholder="Ваше имя"
+                            required
+                            minlength="2"
+                            maxlength="20"
+                            autocomplete="name"
+                        >
+                        <small class="form-hint">От 2 до 20 символов</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-email">📧 Email</label>
+                        <input 
+                            type="email" 
+                            id="register-email" 
+                            class="form-input" 
+                            placeholder="your@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-password">🔒 Пароль</label>
+                        <input 
+                            type="password" 
+                            id="register-password" 
+                            class="form-input" 
+                            placeholder="••••••••"
+                            required
+                            minlength="6"
+                            autocomplete="new-password"
+                        >
+                        <small class="form-hint">Минимум 6 символов</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-password-confirm">🔒 Подтвердите пароль</label>
+                        <input 
+                            type="password" 
+                            id="register-password-confirm" 
+                            class="form-input" 
+                            placeholder="••••••••"
+                            required
+                            minlength="6"
+                            autocomplete="new-password"
+                        >
+                    </div>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="accept-terms" required>
+                        <span>Я принимаю <a href="#">условия использования</a></span>
+                    </label>
+
+                    <button type="submit" class="auth-button primary">
+                        Создать аккаунт
+                    </button>
+
+                    <div class="form-divider">или</div>
+
+                    <button type="button" class="auth-button guest" id="guest-btn-2">
+                        <span>🎮</span> Играть без регистрации
+                    </button>
+                </form>
+
+                <div class="auth-message" id="register-message"></div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 МОДАЛЬНОЕ ОКНО СБРОСА ПАРОЛЯ
+                 ═══════════════════════════════════════════════════════ -->
+            <div id="reset-password-modal" class="reset-modal hidden">
+                <div class="reset-overlay"></div>
+                <div class="reset-content">
+                    <button class="reset-close" aria-label="Закрыть">×</button>
+                    <h3>Восстановление пароля</h3>
+                    <p>Введите ваш email, и мы отправим вам ссылку для сброса пароля</p>
+                    
+                    <form id="reset-password-form">
+                        <div class="form-group">
+                            <label for="reset-email">📧 Email</label>
+                            <input 
+                                type="email" 
+                                id="reset-email" 
+                                class="form-input" 
+                                placeholder="your@email.com"
+                                required
+                            >
+                        </div>
+                        
+                        <button type="submit" class="auth-button primary">
+                            Отправить ссылку
+                        </button>
+                    </form>
+                    
+                    <div class="auth-message" id="reset-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Футер -->
+        <div class="auth-footer">
+            <p>© Игра на сопоставление</p>
+            <p><a href="index.html">← Вернуться на главную</a></p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Auth Manager -->
+    <script src="js/auth.js"></script>
+    
+    <!-- Login Page Script -->
+    <script src="js/login-page.js"></script>
+</body>
+</html>
