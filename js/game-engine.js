@@ -1527,8 +1527,7 @@ class GameEngine {
                 window.soundManager.playSuccess();
             }
             
-            // НЕ увеличиваем correctAnswers и combo здесь - это сделает handleMatch
-            this.addScore(50);
+            // Очки начисляются в handleMatch (не здесь!)
             this.handleMatch(draggedCard, targetCard, draggedPairId);
             return true;
         } else {
