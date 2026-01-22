@@ -254,6 +254,15 @@ class GameModel {
         card1.state = 'matched';
         card2.state = 'matched';
         
+        // Сохраняем позиции карточек для вставки новых на их место
+        const leftIndex = this.boardCards.left.findIndex(c => c.id === cardId1 || c.id === cardId2);
+        const rightIndex = this.boardCards.right.findIndex(c => c.id === cardId1 || c.id === cardId2);
+        
+        this.lastMatchedPositions = {
+            left: leftIndex >= 0 ? leftIndex : null,
+            right: rightIndex >= 0 ? rightIndex : null
+        };
+        
         // Убираем с доски
         this.boardCards.left = this.boardCards.left.filter(c => c.id !== cardId1 && c.id !== cardId2);
         this.boardCards.right = this.boardCards.right.filter(c => c.id !== cardId1 && c.id !== cardId2);
@@ -266,7 +275,8 @@ class GameModel {
         
         // Очки
         const baseScore = this.SCORE_CORRECT;
-        const comboBonus = Math.max(0, (this.combo - 1) * this.COMBO_BONUS);
+        // Бонус комбо начинается с 5 совпадений
+        const comboBonus = this.combo >= 5 ? (this.combo - 4) * this.COMBO_BONUS : 0;
         this.score += baseScore + comboBonus;
         
         console.log(`📊 Очки: +${baseScore + comboBonus}, combo: ${this.combo}, найдено: ${this.matchedPairsCount}/${this.totalPairs}`);
@@ -291,20 +301,31 @@ class GameModel {
     refillBoard() {
         const newCards = [];
         
-        // Добираем по одной карточке с каждой стороны
+        // Добираем карточки на места удалённых
+        // Используем сохранённые позиции если они есть, иначе добавляем в конец
+        
         if (this.poolCards.left.length > 0) {
             const card = this.poolCards.left.shift();
             card.state = 'active';
-            this.boardCards.left.push(card);
-            newCards.push(card);
+            
+            // Вставляем на позицию удалённой карточки или в конец
+            const insertIndex = this.lastMatchedPositions?.left ?? this.boardCards.left.length;
+            this.boardCards.left.splice(insertIndex, 0, card);
+            newCards.push({...card, insertIndex, side: 'left'});
         }
         
         if (this.poolCards.right.length > 0) {
             const card = this.poolCards.right.shift();
             card.state = 'active';
-            this.boardCards.right.push(card);
-            newCards.push(card);
+            
+            // Вставляем на позицию удалённой карточки или в конец
+            const insertIndex = this.lastMatchedPositions?.right ?? this.boardCards.right.length;
+            this.boardCards.right.splice(insertIndex, 0, card);
+            newCards.push({...card, insertIndex, side: 'right'});
         }
+        
+        // Очищаем сохранённые позиции
+        this.lastMatchedPositions = null;
         
         console.log(`🔄 Добрано ${newCards.length} карточек`);
         

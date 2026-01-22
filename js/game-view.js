@@ -155,7 +155,14 @@ class GameView {
                 this.leftContainer : this.rightContainer;
             
             if (container) {
-                container.appendChild(el);
+                // Вставляем карточку на позицию, где была удалённая карточка
+                if (cardData.insertIndex !== undefined && cardData.insertIndex < container.children.length) {
+                    // Вставляем перед существующей карточкой на этой позиции
+                    container.insertBefore(el, container.children[cardData.insertIndex]);
+                } else {
+                    // Если позиция не указана или за пределами, добавляем в конец
+                    container.appendChild(el);
+                }
                 
                 // Убираем анимацию
                 setTimeout(() => el.classList.remove('card-new'), 500);
