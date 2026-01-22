@@ -37,9 +37,19 @@ class GameView {
             ['combo', this.comboEl]
         ];
         
+        const missing = [];
         required.forEach(([id, el]) => {
-            if (!el) console.error(`❌ Элемент #${id} не найден`);
+            if (!el) {
+                console.error(`❌ Элемент #${id} не найден`);
+                missing.push(id);
+            }
         });
+        
+        if (missing.length > 0) {
+            throw new Error(`Не найдены элементы: ${missing.join(', ')}`);
+        }
+        
+        console.log('✅ Все необходимые элементы найдены');
     }
     
     // ═══════════════════════════════════════════════════════════

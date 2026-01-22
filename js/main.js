@@ -700,6 +700,14 @@ class UserProfileUI {
     }
     
     setupEventListeners() {
+        // Кнопка "Войти" - открывает модальное окно
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                this.openAuthModal();
+            });
+        }
+        
         // Toggle dropdown
         const profileToggle = document.getElementById('user-profile-toggle');
         const dropdown = document.getElementById('user-dropdown');
@@ -837,14 +845,177 @@ class UserProfileUI {
         
         return html;
     }
+    
+    // ═══════════════════════════════════════════════════════════
+    // МОДАЛЬНОЕ ОКНО ВХОДА/РЕГИСТРАЦИИ
+    // ═══════════════════════════════════════════════════════════
+    
+    openAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            this.setupAuthModalListeners();
+        }
+    }
+    
+    closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            // Очищаем формы
+            document.getElementById('login-form-element')?.reset();
+            document.getElementById('register-form-element')?.reset();
+            // Очищаем ошибки
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('register-error').textContent = '';
+        }
+    }
+    
+    setupAuthModalListeners() {
+        // Кнопка закрытия
+        const closeBtn = document.getElementById('auth-modal-close');
+        if (closeBtn) {
+            closeBtn.onclick = () => this.closeAuthModal();
+        }
+        
+        // Закрытие по overlay
+        const overlay = document.querySelector('#auth-modal .modal-overlay');
+        if (overlay) {
+            overlay.onclick = () => this.closeAuthModal();
+        }
+        
+        // Переключение табов
+        const tabs = document.querySelectorAll('.auth-tab');
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                const tabName = tab.dataset.tab;
+                this.switchAuthTab(tabName);
+            };
+        });
+        
+        // Форма входа
+        const loginForm = document.getElementById('login-form-element');
+        if (loginForm) {
+            loginForm.onsubmit = async (e) => {
+                e.preventDefault();
+                await this.handleLogin();
+            };
+        }
+        
+        // Форма регистрации
+        const registerForm = document.getElementById('register-form-element');
+        if (registerForm) {
+            registerForm.onsubmit = async (e) => {
+                e.preventDefault();
+                await this.handleRegister();
+            };
+        }
+    }
+    
+    switchAuthTab(tabName) {
+        // Переключаем активный таб
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === tabName);
+        });
+        
+        // Переключаем активную форму
+        document.querySelectorAll('.auth-form').forEach(form => {
+            form.classList.toggle('active', form.id === `${tabName}-form`);
+        });
+    }
+    
+    async handleLogin() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('login-error');
+        
+        errorEl.textContent = '';
+        
+        try {
+            const result = await window.authManager.login(email, password);
+            
+            if (result.success) {
+                console.log('✅ Вход выполнен');
+                this.closeAuthModal();
+                // Страница обновится автоматически через authManager
+            } else {
+                errorEl.textContent = result.error || 'Ошибка входа';
+            }
+        } catch (error) {
+            console.error('Ошибка входа:', error);
+            errorEl.textContent = error.message || 'Произошла ошибка';
+        }
+    }
+    
+    async handleRegister() {
+        const name = document.getElementById('register-name').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const errorEl = document.getElementById('register-error');
+        
+        errorEl.textContent = '';
+        
+        try {
+            const result = await window.authManager.register(email, password, name);
+            
+            if (result.success) {
+                console.log('✅ Регистрация выполнена');
+                this.closeAuthModal();
+                // Страница обновится автоматически через authManager
+            } else {
+                errorEl.textContent = result.error || 'Ошибка регистрации';
+            }
+        } catch (error) {
+            console.error('Ошибка регистрации:', error);
+            errorEl.textContent = error.message || 'Произошла ошибка';
+        }
+    }
 }
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
-    new ThemeManager();
-    const loader = new ThemeLoader();
-    loader.loadThemes();
+    console.log('🚀 Инициализация главной страницы...');
     
-    // Инициализируем UI профиля
-    new UserProfileUI();
+    try {
+        // Инициализируем менеджер тем оформления
+        new ThemeManager();
+        console.log('✅ ThemeManager инициализирован');
+    } catch (error) {
+        console.error('❌ Ошибка инициализации ThemeManager:', error);
+    }
+    
+    try {
+        // Загружаем темы
+        const loader = new ThemeLoader();
+        loader.loadThemes();
+        console.log('✅ ThemeLoader инициализирован');
+    } catch (error) {
+        console.error('❌ Ошибка инициализации ThemeLoader:', error);
+        // Показываем сообщение об ошибке
+        const container = document.getElementById('themes-container');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                    <h2>Ошибка загрузки тем</h2>
+                    <p>Пожалуйста, перезагрузите страницу</p>
+                    <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 2rem; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        Обновить страницу
+                    </button>
+                </div>
+            `;
+        }
+    }
+    
+    try {
+        // Инициализируем UI профиля
+        if (typeof UserProfileUI !== 'undefined') {
+            new UserProfileUI();
+            console.log('✅ UserProfileUI инициализирован');
+        }
+    } catch (error) {
+        console.error('❌ Ошибка инициализации UserProfileUI:', error);
+    }
+    
+    console.log('✅ Инициализация завершена');
 });
