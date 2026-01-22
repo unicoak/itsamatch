@@ -224,11 +224,15 @@ class GameController {
         // Включаем взаимодействие
         this.view.setInteractionEnabled(true);
         
-        // Инициализируем drag-drop для новых карточек
-        if (window.dragDropManager) {
-            window.dragDropManager.init();
-            console.log('✅ Drag-drop привязан к карточкам');
+        // Создаём и инициализируем drag-drop для карточек (только один раз)
+        if (!window.dragDropManager) {
+            window.dragDropManager = new DragDropManager(this);
+            console.log('✅ DragDropManager создан');
         }
+        
+        // Инициализируем обработчики для текущих карточек
+        window.dragDropManager.init();
+        console.log('✅ Drag-drop привязан к карточкам');
         
         // Запускаем таймер
         this.model.startTime = Date.now();

@@ -662,22 +662,5 @@ if (!document.getElementById('dragdrop-styles')) {
     document.head.appendChild(styleSheet);
 }
 
-// Инициализация после загрузки контроллера
-document.addEventListener('DOMContentLoaded', () => {
-    let attempts = 0;
-    const maxAttempts = 50; // 5 секунд максимум
-    
-    const checkController = setInterval(() => {
-        attempts++;
-        
-        if (window.gameController) {
-            window.dragDropManager = new DragDropManager(window.gameController);
-            window.dragDropManager.init();
-            clearInterval(checkController);
-            console.log('✅ DragDropManager инициализирован и готов');
-        } else if (attempts >= maxAttempts) {
-            clearInterval(checkController);
-            console.error('❌ gameController не найден после 5 секунд');
-        }
-    }, 100);
-});
+// DragDropManager will be created and initialized by GameController
+// This prevents race conditions with card rendering
