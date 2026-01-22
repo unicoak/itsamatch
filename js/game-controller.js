@@ -170,40 +170,25 @@ class GameController {
         const medium = allPairs.filter(p => p.difficulty === 2);
         const hard = allPairs.filter(p => p.difficulty === 3);
         
-        let selected = [];
+        // Define requirements for each difficulty
+        const requirements = {
+            1: { min: 12, easy: 10, medium: 2, hard: 0 },
+            2: { min: 18, easy: 6, medium: 9, hard: 3 },
+            3: { min: 24, easy: 6, medium: 6, hard: 12 }
+        };
         
-        switch (difficulty) {
-            case 1: // Лёгкая: 12 пар
-                selected = [
-                    ...easy.slice(0, 10),
-                    ...medium.slice(0, 2)
-                ];
-                break;
-            
-            case 2: // Средняя: 18 пар
-                selected = [
-                    ...easy.slice(0, 6),
-                    ...medium.slice(0, 9),
-                    ...hard.slice(0, 3)
-                ];
-                break;
-            
-            case 3: // Сложная: 24 пары
-                selected = [
-                    ...easy.slice(0, 6),
-                    ...medium.slice(0, 6),
-                    ...hard.slice(0, 12)
-                ];
-                break;
-            
-            default:
-                selected = allPairs;
-        }
+        const req = requirements[difficulty] || requirements[2]; // Default to medium
         
-        // Если не хватило - берём из всех
-        if (selected.length < 6) {
-            console.warn('Недостаточно пар нужной сложности, берём все');
-            selected = allPairs.slice(0, Math.max(12, allPairs.length));
+        let selected = [
+            ...easy.slice(0, req.easy),
+            ...medium.slice(0, req.medium),
+            ...hard.slice(0, req.hard)
+        ];
+        
+        // Если не хватило - берём из всех доступных
+        if (selected.length < req.min) {
+            console.warn(`⚠️ Недостаточно пар для сложности ${difficulty}, нужно ${req.min}, есть ${selected.length}`);
+            selected = allPairs.slice(0, req.min);
         }
         
         console.log(`✅ Выбрано ${selected.length} пар для сложности ${difficulty}`);
