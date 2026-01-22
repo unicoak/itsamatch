@@ -322,6 +322,11 @@ class GameController {
         // Анимация
         this.view.showCorrectMatch(result.card1.id, result.card2.id);
         
+        // Показываем описание пары
+        if (result.description) {
+            this.view.showMatchDescription(result.description);
+        }
+        
         // Обновляем UI
         this.updateAllUI();
         

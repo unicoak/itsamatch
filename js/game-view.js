@@ -226,6 +226,41 @@ class GameView {
         });
     }
     
+    /**
+     * Показать описание совпавшей пары
+     */
+    showMatchDescription(description) {
+        if (!description) return;
+        
+        // Создаём tooltip элемент
+        const tooltip = document.createElement('div');
+        tooltip.className = 'match-description-tooltip';
+        tooltip.innerHTML = `
+            <div class="tooltip-icon">✅</div>
+            <div class="tooltip-text">${description}</div>
+        `;
+        
+        // Добавляем на страницу
+        document.body.appendChild(tooltip);
+        
+        // Анимация появления (slide down)
+        requestAnimationFrame(() => {
+            tooltip.classList.add('show');
+        });
+        
+        // Удаляем через 3.6 секунды (0.3s slide down + 3s visible + 0.3s slide up)
+        setTimeout(() => {
+            tooltip.classList.remove('show');
+            setTimeout(() => {
+                if (tooltip.parentNode) {
+                    tooltip.parentNode.removeChild(tooltip);
+                }
+            }, 300); // Ждём завершения анимации slide up
+        }, 3300);
+        
+        console.log('📝 Показано описание:', description);
+    }
+    
     // ═══════════════════════════════════════════════════════════
     // ОБНОВЛЕНИЕ СТАТИСТИКИ
     // ═══════════════════════════════════════════════════════════

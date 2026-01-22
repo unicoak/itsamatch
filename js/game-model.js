@@ -143,16 +143,14 @@ class GameModel {
         this.cards = [];
         this.totalPairs = pairs.length;
         
-        // Перемешиваем пары
-        const shuffled = this.shuffle([...pairs]);
-        
-        // Создаём карточки
-        shuffled.forEach((pair, index) => {
+        // Создаём карточки (без перемешивания пар - это избыточно)
+        pairs.forEach((pair, index) => {
             this.cards.push({
                 id: `card_left_${index}`,
                 pairId: pair.id,
                 side: 'left',
                 text: pair.left,
+                description: pair.description || '', // Сохраняем описание пары
                 state: 'pool',
                 position: index
             });
@@ -162,6 +160,7 @@ class GameModel {
                 pairId: pair.id,
                 side: 'right',
                 text: pair.right,
+                description: pair.description || '', // Сохраняем описание пары
                 state: 'pool',
                 position: index
             });
@@ -174,6 +173,37 @@ class GameModel {
         // Перемешиваем пулы
         this.poolCards.left = this.shuffle(this.poolCards.left);
         this.poolCards.right = this.shuffle(this.poolCards.right);
+        
+        // Гарантируем наличие хотя бы одной пары в первых CARDS_ON_BOARD карточках
+        let hasMatch = false;
+        let attempts = 0;
+        const maxAttempts = 100;
+        
+        while (!hasMatch && attempts < maxAttempts) {
+            // Проверяем есть ли совпадения в первых CARDS_ON_BOARD карточках
+            const leftFirst = this.poolCards.left.slice(0, this.CARDS_ON_BOARD);
+            const rightFirst = this.poolCards.right.slice(0, this.CARDS_ON_BOARD);
+            
+            for (let leftCard of leftFirst) {
+                for (let rightCard of rightFirst) {
+                    if (leftCard.pairId === rightCard.pairId) {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+                if (hasMatch) break;
+            }
+            
+            // Если совпадений нет, перемешиваем правую сторону заново
+            if (!hasMatch) {
+                this.poolCards.right = this.shuffle(this.poolCards.right);
+                attempts++;
+            }
+        }
+        
+        if (attempts > 0) {
+            console.log(`🔄 Перемешано ${attempts} раз для гарантии совпадений`);
+        }
         
         // Выводим на доску
         this.boardCards.left = this.poolCards.left.splice(0, this.CARDS_ON_BOARD);
@@ -237,7 +267,8 @@ class GameModel {
             isMatch,
             card1,
             card2,
-            pairId: card1.pairId
+            pairId: card1.pairId,
+            description: card1.description // Добавляем описание пары
         };
     }
     
