@@ -465,10 +465,7 @@ class ThemeLoader {
         // Возвращаем скролл
         document.body.style.overflow = '';
     }
-        
-        // Возвращаем скролл
-        document.body.style.overflow = '';
-    }
+
     
     startGameWithDifficulty(themeId, difficulty) {
         // 🔊 Звук клика при выборе сложности
