@@ -1,3 +1,8 @@
+/* Глобальный класс для скрытия */
+.hidden {
+    display: none !important;
+}
+
 /* Подключение шрифта */
 @font-face {
     font-family: 'SouthGhetto';

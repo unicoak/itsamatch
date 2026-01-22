@@ -259,10 +259,12 @@ class ThemeLoader {
         const closeBtn = modal.querySelector('.modal-close');
         const overlay = modal.querySelector('.modal-overlay');
         const guestBtn = document.getElementById('play-as-guest-btn');
+        const loginBtn = document.getElementById('auth-choice-login-btn');
         
         if (!closeBtn) console.error('❌ Кнопка закрытия не найдена');
         if (!overlay) console.error('❌ Overlay не найден');
         if (!guestBtn) console.error('❌ Кнопка гостя не найдена');
+        if (!loginBtn) console.error('❌ Кнопка входа не найдена');
         
         // Закрытие по кнопке
         if (closeBtn) {
@@ -290,6 +292,20 @@ class ThemeLoader {
                     this.showDifficultyModal(this.selectedTheme);
                 } else {
                     console.error('❌ selectedTheme не установлена');
+                }
+            });
+        }
+        
+        // Войти или зарегистрироваться
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                console.log('🖱️ Клик по кнопке "Войти"');
+                this.hideAuthChoiceModal();
+                // Открываем модальное окно входа
+                if (window.userProfileUI) {
+                    window.userProfileUI.openAuthModal();
+                } else {
+                    console.error('❌ userProfileUI не найден');
                 }
             });
         }
@@ -695,6 +711,7 @@ document.head.appendChild(styleSheet);
 
 class UserProfileUI {
     constructor() {
+        this.authModalListenersSetup = false; // Флаг для однократной установки
         this.setupEventListeners();
         this.setupAuthListener();
     }
@@ -854,7 +871,12 @@ class UserProfileUI {
         const modal = document.getElementById('auth-modal');
         if (modal) {
             modal.classList.remove('hidden');
-            this.setupAuthModalListeners();
+            
+            // Устанавливаем обработчики только один раз
+            if (!this.authModalListenersSetup) {
+                this.setupAuthModalListeners();
+                this.authModalListenersSetup = true;
+            }
         }
     }
     
@@ -1010,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         // Инициализируем UI профиля
         if (typeof UserProfileUI !== 'undefined') {
-            new UserProfileUI();
+            window.userProfileUI = new UserProfileUI();
             console.log('✅ UserProfileUI инициализирован');
         }
     } catch (error) {
