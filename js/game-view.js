@@ -111,6 +111,18 @@ class GameView {
         content.textContent = cardData.text;
         card.appendChild(content);
         
+        // ВАЖНО: Добавляем обработчики через dragDropManager
+        // Делаем это асинхронно, чтобы карточка успела добавиться в DOM
+        requestAnimationFrame(() => {
+            if (window.dragDropManager && cardData.state !== 'matched') {
+                if (cardData.side === 'right') {
+                    window.dragDropManager.addRightCardListeners(card);
+                } else if (cardData.side === 'left') {
+                    window.dragDropManager.addLeftCardListeners(card);
+                }
+            }
+        });
+        
         return card;
     }
     
