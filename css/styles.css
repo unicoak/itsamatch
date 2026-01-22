@@ -19,9 +19,7 @@
 }
 
 .auth-modal.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    display: none;
 }
 
 .auth-modal .modal-overlay {
@@ -192,4 +190,9 @@
 #login-btn:hover {
     background: var(--bg-card-hover);
     transform: translateY(-2px);
+}
+
+/* Глобальный класс для скрытия */
+.hidden {
+    display: none !important;
 }
