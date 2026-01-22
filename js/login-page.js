@@ -53,7 +53,7 @@ document.getElementById('login-form-element').addEventListener('submit', async (
     // Редирект при успехе
     if (result.success) {
         setTimeout(() => {
-            window.location.href = 'themes.html';
+            window.location.href = 'index.html';
         }, 1500);
     }
 });
@@ -93,7 +93,7 @@ document.getElementById('register-form-element').addEventListener('submit', asyn
     // Редирект при успехе
     if (result.success) {
         setTimeout(() => {
-            window.location.href = 'themes.html';
+            window.location.href = 'index.html';
         }, 1500);
     }
 });
@@ -101,7 +101,7 @@ document.getElementById('register-form-element').addEventListener('submit', asyn
 // Кнопки "Играть без регистрации"
 document.querySelectorAll('[id^="guest-btn"]').forEach(btn => {
     btn.addEventListener('click', () => {
-        window.location.href = 'themes.html';
+        window.location.href = 'index.html';
     });
 });
 

@@ -100,15 +100,34 @@ class ProgressManager {
      * ═══════════════════════════════════════════════════════════
      */
     
-    async getThemeProgress(themeId) {
-        if (!this.userId) return {};
+    /**
+     * Получить прогресс по теме
+     * @param {string} themeId - ID темы
+     * @param {number} difficulty - Сложность (опционально, если указана - вернёт только для этой сложности)
+     */
+    async getThemeProgress(themeId, difficulty = null) {
+        if (!this.userId) return difficulty !== null ? null : {};
         
         try {
-            const snapshot = await db.collection('users')
+            let query = db.collection('users')
                 .doc(this.userId)
                 .collection('progress')
-                .where('themeId', '==', themeId)
-                .get();
+                .where('themeId', '==', themeId);
+            
+            // Если указана конкретная сложность
+            if (difficulty !== null) {
+                const docId = `${themeId}_${difficulty}`;
+                const doc = await db.collection('users')
+                    .doc(this.userId)
+                    .collection('progress')
+                    .doc(docId)
+                    .get();
+                
+                return doc.exists ? doc.data() : null;
+            }
+            
+            // Иначе возвращаем все сложности
+            const snapshot = await query.get();
             
             const progress = {};
             snapshot.forEach(doc => {
@@ -120,7 +139,7 @@ class ProgressManager {
             
         } catch (error) {
             console.error('❌ Ошибка получения прогресса:', error);
-            return {};
+            return difficulty !== null ? null : {};
         }
     }
     

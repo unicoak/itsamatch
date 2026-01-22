@@ -3,191 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход | Игра на сопоставление</title>
+    <title>Игра на сопоставление</title>
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/auth.css">
 </head>
-<body class="auth-page">
-    <div class="auth-container">
-        <div class="auth-card">
-            <!-- Логотип и название -->
-            <div class="auth-header">
-                <h1 class="auth-logo">🎮</h1>
-                <h2 class="auth-title">Игра на сопоставление</h2>
-                <p class="auth-subtitle">Войдите чтобы сохранять прогресс</p>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <!-- Левая зона -->
+            <div class="nav-left">
+                <a href="index.html" class="nav-brand">🎯 Игра на сопоставление</a>
             </div>
-
-            <!-- Вкладки: Вход / Регистрация -->
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Вход</button>
-                <button class="auth-tab" data-tab="register">Регистрация</button>
+            
+            <!-- Центральная зона - пустая на главной -->
+            <div class="nav-center">
             </div>
-
-            <!-- ═══════════════════════════════════════════════════════
-                 ФОРМА ВХОДА
-                 ═══════════════════════════════════════════════════════ -->
-            <div id="login-form" class="auth-form active">
-                <form id="login-form-element">
-                    <div class="form-group">
-                        <label for="login-email">📧 Email</label>
-                        <input 
-                            type="email" 
-                            id="login-email" 
-                            class="form-input" 
-                            placeholder="your@email.com"
-                            required
-                            autocomplete="email"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="login-password">🔒 Пароль</label>
-                        <input 
-                            type="password" 
-                            id="login-password" 
-                            class="form-input" 
-                            placeholder="••••••••"
-                            required
-                            autocomplete="current-password"
-                        >
-                    </div>
-
-                    <div class="form-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="remember-me">
-                            <span>Запомнить меня</span>
-                        </label>
-                        <a href="#" class="forgot-password">Забыли пароль?</a>
-                    </div>
-
-                    <button type="submit" class="auth-button primary">
-                        Войти
+            
+            <!-- Правая зона -->
+            <div class="nav-right">
+                <!-- Dropdown выбора темы -->
+                <div class="theme-selector">
+                    <select id="theme-select" class="theme-select" aria-label="Выбрать тему оформления">
+                        <option value="light">☀️ Светлая</option>
+                        <option value="dark">🌙 Тёмная</option>
+                        <option value="light-alt">🌸 Тёплая</option>
+                        <option value="dark-alt">🔥 Синяя</option>
+                    </select>
+                </div>
+                
+                <!-- Кнопка входа (до авторизации) -->
+                <a href="index.html" id="login-btn" class="nav-btn">
+                    🔐 Войти
+                </a>
+                
+                <!-- Профиль пользователя (после авторизации) -->
+                <div id="user-profile" class="user-profile" style="display: none;">
+                    <button class="user-profile-btn" id="user-profile-toggle">
+                        <span class="user-avatar">👤</span>
+                        <span class="user-name" id="user-name">Игрок</span>
+                        <span class="dropdown-arrow">▼</span>
                     </button>
-
-                    <div class="form-divider">или</div>
-
-                    <button type="button" class="auth-button guest" id="guest-btn">
-                        <span>🎮</span> Играть без регистрации
-                    </button>
-                </form>
-
-                <div class="auth-message" id="login-message"></div>
-            </div>
-
-            <!-- ═══════════════════════════════════════════════════════
-                 ФОРМА РЕГИСТРАЦИИ
-                 ═══════════════════════════════════════════════════════ -->
-            <div id="register-form" class="auth-form">
-                <form id="register-form-element">
-                    <div class="form-group">
-                        <label for="register-name">👤 Имя игрока</label>
-                        <input 
-                            type="text" 
-                            id="register-name" 
-                            class="form-input" 
-                            placeholder="Ваше имя"
-                            required
-                            minlength="2"
-                            maxlength="20"
-                            autocomplete="name"
-                        >
-                        <small class="form-hint">От 2 до 20 символов</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-email">📧 Email</label>
-                        <input 
-                            type="email" 
-                            id="register-email" 
-                            class="form-input" 
-                            placeholder="your@email.com"
-                            required
-                            autocomplete="email"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-password">🔒 Пароль</label>
-                        <input 
-                            type="password" 
-                            id="register-password" 
-                            class="form-input" 
-                            placeholder="••••••••"
-                            required
-                            minlength="6"
-                            autocomplete="new-password"
-                        >
-                        <small class="form-hint">Минимум 6 символов</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-password-confirm">🔒 Подтвердите пароль</label>
-                        <input 
-                            type="password" 
-                            id="register-password-confirm" 
-                            class="form-input" 
-                            placeholder="••••••••"
-                            required
-                            minlength="6"
-                            autocomplete="new-password"
-                        >
-                    </div>
-
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="accept-terms" required>
-                        <span>Я принимаю <a href="#">условия использования</a></span>
-                    </label>
-
-                    <button type="submit" class="auth-button primary">
-                        Создать аккаунт
-                    </button>
-
-                    <div class="form-divider">или</div>
-
-                    <button type="button" class="auth-button guest" id="guest-btn-2">
-                        <span>🎮</span> Играть без регистрации
-                    </button>
-                </form>
-
-                <div class="auth-message" id="register-message"></div>
-            </div>
-
-            <!-- ═══════════════════════════════════════════════════════
-                 МОДАЛЬНОЕ ОКНО СБРОСА ПАРОЛЯ
-                 ═══════════════════════════════════════════════════════ -->
-            <div id="reset-password-modal" class="reset-modal hidden">
-                <div class="reset-overlay"></div>
-                <div class="reset-content">
-                    <button class="reset-close" aria-label="Закрыть">×</button>
-                    <h3>Восстановление пароля</h3>
-                    <p>Введите ваш email, и мы отправим вам ссылку для сброса пароля</p>
                     
-                    <form id="reset-password-form">
-                        <div class="form-group">
-                            <label for="reset-email">📧 Email</label>
-                            <input 
-                                type="email" 
-                                id="reset-email" 
-                                class="form-input" 
-                                placeholder="your@email.com"
-                                required
-                            >
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="user-avatar-large">👤</div>
+                            <div class="user-info">
+                                <div class="user-name-large" id="user-name-large">Игрок</div>
+                                <div class="user-email" id="user-email">email@example.com</div>
+                            </div>
                         </div>
-                        
-                        <button type="submit" class="auth-button primary">
-                            Отправить ссылку
+                        <div class="user-dropdown-divider"></div>
+                        <button class="user-dropdown-item" id="view-stats-btn">
+                            <span>📊</span> Моя статистика
                         </button>
-                    </form>
-                    
-                    <div class="auth-message" id="reset-message"></div>
+                        <button class="user-dropdown-item" id="logout-btn">
+                            <span>🚪</span> Выйти
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+    </nav>
 
-        <!-- Футер -->
-        <div class="auth-footer">
+    <main class="container">
+        <section class="hero">
+            <h1>Игра на сопоставление</h1>
+            <p class="hero-description">
+                Проверьте свою эрудицию: правильно сопоставьте элементы из разных категорий.
+                Перетаскивайте карточки и находите правильные пары!
+            </p>
+        </section>
+
+        <section id="themes" class="themes-section">
+            <div id="themes-container">
+                <!-- Темы будут загружены динамически -->
+            </div>
+        </section>
+
+        <footer class="footer">
             <p>© Игра на сопоставление</p>
-            <p><a href="themes.html">← Вернуться на главную</a></p>
+            <p>Разработал <a href="#">Don Su</a></p>
+        </footer>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         МОДАЛЬНОЕ ОКНО ВЫБОРА СЛОЖНОСТИ
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- Модальное окно: Войти или играть без регистрации -->
+    <div id="auth-choice-modal" class="auth-choice-modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Закрыть">×</button>
+            
+            <div class="modal-header">
+                <div class="modal-icon">🎮</div>
+                <h2 class="modal-title">Начать игру?</h2>
+                <p class="modal-subtitle">Войдите, чтобы сохранять прогресс</p>
+            </div>
+            
+            <div class="modal-buttons">
+                <a href="login.html" class="modal-btn modal-btn-primary">
+                    <span class="btn-icon">🔐</span>
+                    <span class="btn-text">Войти или зарегистрироваться</span>
+                    <span class="btn-hint">Сохранение прогресса и статистики</span>
+                </a>
+                
+                <button id="play-as-guest-btn" class="modal-btn modal-btn-secondary">
+                    <span class="btn-icon">👤</span>
+                    <span class="btn-text">Играть без регистрации</span>
+                    <span class="btn-hint">Прогресс не сохранится</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Выбор сложности -->
+    <div id="difficulty-modal" class="difficulty-modal hidden">
+        <div class="difficulty-overlay"></div>
+        <div class="difficulty-content">
+            <button class="difficulty-close" aria-label="Закрыть">×</button>
+            
+            <div class="difficulty-header">
+                <div class="difficulty-theme-icon"></div>
+                <h2 class="difficulty-theme-title"></h2>
+            </div>
+            
+            <p class="difficulty-description">
+                Выберите уровень сложности для игры:
+            </p>
+            
+            <div class="difficulty-options">
+                <!-- ⭐ Лёгкая -->
+                <button class="difficulty-option" data-difficulty="1">
+                    <div class="difficulty-option-header">
+                        <span class="difficulty-option-stars">⭐</span>
+                        <span class="difficulty-option-title">Лёгкая</span>
+                    </div>
+                    <div class="difficulty-option-details">
+                        <p class="difficulty-option-pairs">12 пар</p>
+                        <p class="difficulty-option-progress" data-difficulty="1"></p>
+                    </div>
+                    <p class="difficulty-option-description">
+                        Идеально для начинающих и знакомства с темой
+                    </p>
+                </button>
+                
+                <!-- ⭐⭐ Средняя -->
+                <button class="difficulty-option" data-difficulty="2">
+                    <div class="difficulty-option-header">
+                        <span class="difficulty-option-stars">⭐⭐</span>
+                        <span class="difficulty-option-title">Средняя</span>
+                    </div>
+                    <div class="difficulty-option-details">
+                        <p class="difficulty-option-pairs">18 пар</p>
+                        <p class="difficulty-option-progress" data-difficulty="2"></p>
+                    </div>
+                    <p class="difficulty-option-description">
+                        Сбалансированный вызов для опытных игроков
+                    </p>
+                </button>
+                
+                <!-- ⭐⭐⭐ Тяжёлая -->
+                <button class="difficulty-option" data-difficulty="3">
+                    <div class="difficulty-option-header">
+                        <span class="difficulty-option-stars">⭐⭐⭐</span>
+                        <span class="difficulty-option-title">Тяжёлая</span>
+                    </div>
+                    <div class="difficulty-option-details">
+                        <p class="difficulty-option-pairs">24 пары</p>
+                        <p class="difficulty-option-progress" data-difficulty="3"></p>
+                    </div>
+                    <p class="difficulty-option-description">
+                        Только для экспертов! Проверьте свои знания
+                    </p>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -196,13 +185,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
-    <!-- Firebase Configuration -->
+    <!-- Auth System -->
     <script src="js/firebase-config.js"></script>
-    
-    <!-- Auth Manager -->
     <script src="js/auth.js"></script>
-    
-    <!-- Login Page Script -->
-    <script src="js/login-page.js"></script>
+    <script src="js/progress.js"></script>
+
+    <script src="js/main.js"></script>
 </body>
 </html>

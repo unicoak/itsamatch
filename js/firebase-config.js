@@ -15,12 +15,12 @@
  */
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCMAHlDT3p6hXMqGg8uvX53aJVd7Og_1hU",
+    authDomain: "itsamatch-unico.firebaseapp.com",
+    projectId: "itsamatch-unico",
+    storageBucket: "itsamatch-unico.firebasestorage.app",
+    messagingSenderId: "434099718430",
+    appId: "1:434099718430:web:c3b19c07e6b2166f12e10f"
 };
 
 /**
