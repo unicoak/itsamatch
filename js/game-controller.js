@@ -63,6 +63,7 @@ class GameController {
             
             // Шаг 6: Отображаем карточки
             this.view.updateLoadingMessage('Отрисовка...');
+            this.view.setGameInfo(themeData);
             this.view.renderCards(this.model.getAllBoardCards());
             
             // Шаг 7: Обновляем UI
@@ -223,6 +224,12 @@ class GameController {
         // Включаем взаимодействие
         this.view.setInteractionEnabled(true);
         
+        // Инициализируем drag-drop для новых карточек
+        if (window.dragDropManager) {
+            window.dragDropManager.init();
+            console.log('✅ Drag-drop привязан к карточкам');
+        }
+        
         // Запускаем таймер
         this.model.startTime = Date.now();
         
@@ -333,6 +340,11 @@ class GameController {
         if (newCards.length > 0) {
             await this.delay(500);
             this.view.addNewCards(newCards);
+            
+            // Инициализируем drag-drop для новых карточек
+            if (window.dragDropManager) {
+                window.dragDropManager.init();
+            }
         }
         
         // Возвращаем состояние

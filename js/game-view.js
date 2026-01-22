@@ -52,6 +52,23 @@ class GameView {
         console.log('✅ Все необходимые элементы найдены');
     }
     
+    /**
+     * Установить информацию о теме
+     */
+    setGameInfo(themeData) {
+        const titleEl = document.getElementById('game-title');
+        const descEl = document.getElementById('game-description');
+        const leftTitleEl = document.getElementById('left-column-title');
+        const rightTitleEl = document.getElementById('right-column-title');
+        
+        if (titleEl) titleEl.textContent = themeData.name;
+        if (descEl) descEl.textContent = themeData.description || '';
+        if (leftTitleEl) leftTitleEl.textContent = themeData.leftColumnName || 'Левая колонка';
+        if (rightTitleEl) rightTitleEl.textContent = themeData.rightColumnName || 'Правая колонка';
+        
+        console.log('✅ Заголовки обновлены:', themeData.name);
+    }
+    
     // ═══════════════════════════════════════════════════════════
     // ОТОБРАЖЕНИЕ КАРТОЧЕК
     // ═══════════════════════════════════════════════════════════

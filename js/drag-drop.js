@@ -672,8 +672,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (window.gameController) {
             window.dragDropManager = new DragDropManager(window.gameController);
+            window.dragDropManager.init();
             clearInterval(checkController);
-            console.log('✅ DragDropManager инициализирован');
+            console.log('✅ DragDropManager инициализирован и готов');
         } else if (attempts >= maxAttempts) {
             clearInterval(checkController);
             console.error('❌ gameController не найден после 5 секунд');
