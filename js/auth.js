@@ -342,5 +342,17 @@ class AuthManager {
     }
 }
 
-// Создаём глобальный экземпляр
-window.authManager = new AuthManager();
+// Создаём глобальный экземпляр после загрузки DOM
+if (typeof firebase !== 'undefined') {
+    // Если DOM уже загружен
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.authManager = new AuthManager();
+        });
+    } else {
+        // DOM уже загружен
+        window.authManager = new AuthManager();
+    }
+} else {
+    console.error('❌ Firebase не загружен! Убедитесь что firebase-config.js загружен перед auth.js');
+}

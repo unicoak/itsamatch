@@ -1,11 +1,13 @@
 /**
  * Менеджер взаимодействия с карточками
  * Поддерживает: клики, drag-and-drop (desktop), touch (mobile), long press tooltip
+ * 
+ * ОБНОВЛЕНО для MVC архитектуры
  */
 
 class DragDropManager {
-    constructor(gameEngine) {
-        this.gameEngine = gameEngine;
+    constructor(gameController) {
+        this.gameController = gameController;
         this.selectedCard = null; // Выбранная карточка (для кликов)
         this.draggedElement = null;
         this.touchClone = null;
@@ -115,8 +117,8 @@ class DragDropManager {
             return;
         }
         
-        // ЗАЩИТА: Нельзя действовать во время обработки
-        if (this.gameEngine.isProcessing) {
+        // ЗАЩИТА: Нельзя действовать во время обработки (через модель)
+        if (this.gameController.model.isProcessing()) {
             console.warn('Обработка в процессе, игнорируем клик');
             return;
         }
@@ -168,16 +170,13 @@ class DragDropManager {
             rightCard = card;
         }
         
-        // Проверяем совпадение
-        const isMatch = this.gameEngine.checkMatch(rightCard, leftCard);
+        // Проверяем совпадение через контроллер
+        // Сначала устанавливаем draggedCardId (правая карточка)
+        this.gameController.handleCardDragStart(rightCard.dataset.cardId);
+        // Затем делаем drop на левую
+        this.gameController.handleCardDrop(leftCard.dataset.cardId);
         
-        if (!isMatch) {
-            // Анимация неправильного ответа
-            this.showIncorrectAnimation(this.selectedCard);
-            this.showIncorrectAnimation(card);
-        }
-        
-        // Снимаем выбор
+        // Снимаем выделение
         this.deselectCard();
     }
 
@@ -191,6 +190,12 @@ class DragDropManager {
     // ============ DESKTOP DRAG & DROP ============
 
     handleDragStart(e, card) {
+        // Уведомляем контроллер о начале перетаскивания
+        if (!this.gameController.handleCardDragStart(card.dataset.cardId)) {
+            e.preventDefault();
+            return;
+        }
+        
         this.draggedElement = card;
         card.classList.add('dragging');
         
@@ -233,14 +238,9 @@ class DragDropManager {
         
         card.classList.remove('drop-target');
         
-        // Проверяем совпадение
-        if (this.draggedElement && this.gameEngine) {
-            const isMatch = this.gameEngine.checkMatch(this.draggedElement, card);
-            
-            if (!isMatch) {
-                this.showIncorrectAnimation(this.draggedElement);
-                this.showIncorrectAnimation(card);
-            }
+        // Проверяем совпадение через контроллер
+        if (this.draggedElement && this.gameController) {
+            this.gameController.handleCardDrop(card.dataset.cardId);
         }
     }
 
@@ -299,13 +299,8 @@ class DragDropManager {
         const touch = e.changedTouches[0];
         const dropTarget = this.findDropTarget(touch.clientX, touch.clientY);
         
-        if (dropTarget && this.draggedElement && this.gameEngine) {
-            const isMatch = this.gameEngine.checkMatch(this.draggedElement, dropTarget);
-            
-            if (!isMatch) {
-                this.showIncorrectAnimation(this.draggedElement);
-                this.showIncorrectAnimation(dropTarget);
-            }
+        if (dropTarget && this.draggedElement && this.gameController) {
+            this.gameController.handleCardDrop(dropTarget.dataset.cardId);
         }
         
         this.draggedElement = null;
@@ -667,12 +662,12 @@ if (!document.getElementById('dragdrop-styles')) {
     document.head.appendChild(styleSheet);
 }
 
-// Инициализация после загрузки игрового движка
+// Инициализация после загрузки контроллера
 document.addEventListener('DOMContentLoaded', () => {
-    const checkEngine = setInterval(() => {
-        if (window.gameEngine) {
-            window.dragDropManager = new DragDropManager(window.gameEngine);
-            clearInterval(checkEngine);
+    const checkController = setInterval(() => {
+        if (window.gameController) {
+            window.dragDropManager = new DragDropManager(window.gameController);
+            clearInterval(checkController);
         }
     }, 100);
 });

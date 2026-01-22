@@ -4,6 +4,25 @@
  * ═══════════════════════════════════════════════════════════════════
  */
 
+// Проверка доступности authManager
+function waitForAuthManager(callback, maxAttempts = 50) {
+    let attempts = 0;
+    const check = () => {
+        if (window.authManager) {
+            callback();
+        } else {
+            attempts++;
+            if (attempts < maxAttempts) {
+                setTimeout(check, 100);
+            } else {
+                console.error('❌ authManager не загружен после 5 секунд ожидания');
+                alert('Ошибка загрузки системы авторизации. Обновите страницу.');
+            }
+        }
+    };
+    check();
+}
+
 // Переключение между вкладками
 const tabs = document.querySelectorAll('.auth-tab');
 const forms = document.querySelectorAll('.auth-form');
@@ -30,6 +49,11 @@ tabs.forEach(tab => {
 // Форма входа
 document.getElementById('login-form-element').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!window.authManager) {
+        alert('Система авторизации ещё загружается, подождите...');
+        return;
+    }
     
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
@@ -61,6 +85,11 @@ document.getElementById('login-form-element').addEventListener('submit', async (
 // Форма регистрации
 document.getElementById('register-form-element').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!window.authManager) {
+        alert('Система авторизации ещё загружается, подождите...');
+        return;
+    }
     
     const name = document.getElementById('register-name').value;
     const email = document.getElementById('register-email').value;
@@ -123,6 +152,11 @@ document.querySelector('.reset-overlay').addEventListener('click', () => {
 // Форма сброса пароля
 document.getElementById('reset-password-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    if (!window.authManager) {
+        alert('Система авторизации ещё загружается, подождите...');
+        return;
+    }
     
     const email = document.getElementById('reset-email').value;
     const messageEl = document.getElementById('reset-message');

@@ -2,20 +2,39 @@
  * ═══════════════════════════════════════════════════════════════════
  * PROGRESS MANAGER - Управление прогрессом игрока
  * ═══════════════════════════════════════════════════════════════════
+ * 
+ * MVC v4.0: Добавлено версионирование данных
  */
+
+// Версия формата данных прогресса
+const PROGRESS_DATA_VERSION = 1;
 
 class ProgressManager {
     constructor() {
         this.userId = null;
+        this.authSubscribed = false;
         
-        // Подписываемся на изменения аутентификации
+        // Пытаемся подписаться на authManager
+        this.trySubscribeToAuth();
+        
+        console.log(`📊 ProgressManager инициализирован (версия данных: ${PROGRESS_DATA_VERSION})`);
+    }
+    
+    /**
+     * Попытка подписаться на authManager (с повторами если не готов)
+     */
+    trySubscribeToAuth() {
         if (window.authManager) {
             authManager.onAuthStateChanged(user => {
                 this.userId = user ? user.uid : null;
+                console.log('📊 ProgressManager: userId =', this.userId);
             });
+            this.authSubscribed = true;
+        } else {
+            // authManager ещё не готов, повторим через 100мс
+            console.log('⏳ ProgressManager: ждём authManager...');
+            setTimeout(() => this.trySubscribeToAuth(), 100);
         }
-        
-        console.log('📊 ProgressManager инициализирован');
     }
     
     /**
@@ -44,6 +63,7 @@ class ProgressManager {
             
             // Обновляем если это лучший результат
             const updates = {
+                version: PROGRESS_DATA_VERSION,  // ← Версия данных
                 themeId: themeId,
                 difficulty: difficulty,
                 timesPlayed: (currentData.timesPlayed || 0) + 1,
@@ -123,7 +143,17 @@ class ProgressManager {
                     .doc(docId)
                     .get();
                 
-                return doc.exists ? doc.data() : null;
+                if (!doc.exists) return null;
+                
+                const data = doc.data();
+                
+                // Проверка версии данных
+                if (!data.version || data.version < PROGRESS_DATA_VERSION) {
+                    console.warn(`⚠️ Старая версия прогресса (${data.version}), ожидается ${PROGRESS_DATA_VERSION}`);
+                    // В будущем здесь можно добавить миграцию
+                }
+                
+                return data;
             }
             
             // Иначе возвращаем все сложности
@@ -182,5 +212,15 @@ class ProgressManager {
     }
 }
 
-// Создаём глобальный экземпляр
-window.progressManager = new ProgressManager();
+// Создаём глобальный экземпляр после загрузки DOM
+if (typeof firebase !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.progressManager = new ProgressManager();
+        });
+    } else {
+        window.progressManager = new ProgressManager();
+    }
+} else {
+    console.error('❌ Firebase не загружен! Убедитесь что firebase-config.js загружен перед progress.js');
+}

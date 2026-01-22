@@ -697,13 +697,10 @@ button, input, select, textarea, option {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 1;
-    transition: opacity 0.3s ease;
 }
 
 .difficulty-modal.hidden {
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .difficulty-overlay {

@@ -41,15 +41,22 @@ class ThemeLoader {
     constructor() {
         this.themesContainer = document.getElementById('themes-container');
         this.themes = [];
+        this.escapeListenerAdded = false; // Флаг для Escape listener (difficulty modal)
+        this.authEscapeListenerAdded = false; // Флаг для Escape listener (auth modal)
     }
 
     async loadThemes() {
+        console.log('📦 Загружаем темы...');
         try {
             const response = await fetch('data/themes.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             this.themes = await response.json();
+            console.log(`✅ Загружено ${this.themes.length} тем`);
             this.renderThemes();
         } catch (error) {
-            console.error('Ошибка загрузки тем:', error);
+            console.error('❌ Ошибка загрузки тем:', error);
             this.showError();
         }
     }
@@ -189,17 +196,23 @@ class ThemeLoader {
 
     attachEventListeners() {
         const cards = document.querySelectorAll('.theme-card');
-        cards.forEach(card => {
+        console.log(`📌 Добавляем обработчики для ${cards.length} карточек`);
+        
+        cards.forEach((card, index) => {
             card.addEventListener('click', (e) => {
+                console.log(`🖱️ Клик по карточке #${index}`);
                 const themeId = card.dataset.themeId;
                 const theme = this.themes.find(t => t.id === themeId);
                 if (theme) {
                     this.handleThemeClick(theme);
+                } else {
+                    console.error(`❌ Тема не найдена: ${themeId}`);
                 }
             });
         });
         
         // Обработчики модальных окон
+        console.log('📌 Настраиваем модальные окна');
         this.setupAuthChoiceModal();
         this.setupDifficultyModal();
     }
@@ -208,15 +221,22 @@ class ThemeLoader {
      * Обработка клика на тему
      */
     handleThemeClick(theme) {
+        console.log('🎯 Клик на тему:', theme.title);
+        
         // Сохраняем выбранную тему
         this.selectedTheme = theme;
         
         // Проверяем авторизацию
-        if (window.authManager && window.authManager.isLoggedIn()) {
+        const isLoggedIn = window.authManager && window.authManager.isLoggedIn();
+        console.log('🔐 Пользователь авторизован:', isLoggedIn);
+        
+        if (isLoggedIn) {
             // Пользователь авторизован - сразу показываем выбор сложности
+            console.log('➡️ Показываем выбор сложности');
             this.showDifficultyModal(theme);
         } else {
             // Пользователь не авторизован - предлагаем войти или играть без регистрации
+            console.log('➡️ Показываем выбор авторизации');
             this.showAuthChoiceModal(theme);
         }
     }
@@ -229,44 +249,76 @@ class ThemeLoader {
     
     setupAuthChoiceModal() {
         const modal = document.getElementById('auth-choice-modal');
-        if (!modal) return;
+        if (!modal) {
+            console.error('❌ Элемент auth-choice-modal не найден!');
+            return;
+        }
+        
+        console.log('✅ Настраиваем модальное окно авторизации');
         
         const closeBtn = modal.querySelector('.modal-close');
         const overlay = modal.querySelector('.modal-overlay');
         const guestBtn = document.getElementById('play-as-guest-btn');
         
+        if (!closeBtn) console.error('❌ Кнопка закрытия не найдена');
+        if (!overlay) console.error('❌ Overlay не найден');
+        if (!guestBtn) console.error('❌ Кнопка гостя не найдена');
+        
         // Закрытие по кнопке
-        closeBtn.addEventListener('click', () => {
-            this.hideAuthChoiceModal();
-        });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                console.log('🖱️ Клик по кнопке закрытия');
+                this.hideAuthChoiceModal();
+            });
+        }
         
         // Закрытие по overlay
-        overlay.addEventListener('click', () => {
-            this.hideAuthChoiceModal();
-        });
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                console.log('🖱️ Клик по overlay');
+                this.hideAuthChoiceModal();
+            });
+        }
         
         // Играть без регистрации
-        guestBtn.addEventListener('click', () => {
-            this.hideAuthChoiceModal();
-            // Показываем выбор сложности
-            if (this.selectedTheme) {
-                this.showDifficultyModal(this.selectedTheme);
-            }
-        });
-        
-        // Закрытие по Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        if (guestBtn) {
+            guestBtn.addEventListener('click', () => {
+                console.log('🖱️ Клик по кнопке "Играть без регистрации"');
                 this.hideAuthChoiceModal();
-            }
-        });
+                // Показываем выбор сложности
+                if (this.selectedTheme) {
+                    this.showDifficultyModal(this.selectedTheme);
+                } else {
+                    console.error('❌ selectedTheme не установлена');
+                }
+            });
+        }
+        
+        // Закрытие по Escape (только один раз!)
+        if (!this.authEscapeListenerAdded) {
+            this.authEscapeHandler = (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    console.log('⌨️ Нажат Escape (auth modal)');
+                    this.hideAuthChoiceModal();
+                }
+            };
+            document.addEventListener('keydown', this.authEscapeHandler);
+            this.authEscapeListenerAdded = true;
+        }
+        
+        console.log('✅ Модальное окно авторизации настроено');
     }
     
     showAuthChoiceModal(theme) {
         const modal = document.getElementById('auth-choice-modal');
-        if (!modal) return;
+        if (!modal) {
+            console.error('❌ Модальное окно auth-choice-modal не найдено');
+            return;
+        }
         
+        console.log('✅ Показываем модальное окно авторизации');
         modal.classList.remove('hidden');
+        modal.style.display = 'flex'; // Safari fix
         document.body.style.overflow = 'hidden';
     }
     
@@ -274,7 +326,9 @@ class ThemeLoader {
         const modal = document.getElementById('auth-choice-modal');
         if (!modal) return;
         
+        console.log('✅ Скрываем модальное окно авторизации');
         modal.classList.add('hidden');
+        modal.style.display = 'none'; // Safari fix
         document.body.style.overflow = '';
     }
 
@@ -286,26 +340,39 @@ class ThemeLoader {
     
     setupDifficultyModal() {
         const modal = document.getElementById('difficulty-modal');
+        if (!modal) {
+            console.error('❌ Модальное окно difficulty-modal не найдено');
+            return;
+        }
+        
         const closeBtn = modal.querySelector('.difficulty-close');
         const overlay = modal.querySelector('.difficulty-overlay');
         const difficultyOptions = modal.querySelectorAll('.difficulty-option');
         
         // Закрытие по кнопке
-        closeBtn.addEventListener('click', () => {
-            this.hideDifficultyModal();
-        });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.hideDifficultyModal();
+            });
+        }
         
         // Закрытие по overlay
-        overlay.addEventListener('click', () => {
-            this.hideDifficultyModal();
-        });
-        
-        // Закрытие по Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        if (overlay) {
+            overlay.addEventListener('click', () => {
                 this.hideDifficultyModal();
-            }
-        });
+            });
+        }
+        
+        // Закрытие по Escape (только один раз!)
+        if (!this.escapeListenerAdded) {
+            this.escapeHandler = (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    this.hideDifficultyModal();
+                }
+            };
+            document.addEventListener('keydown', this.escapeHandler);
+            this.escapeListenerAdded = true;
+        }
         
         // Обработка выбора сложности
         difficultyOptions.forEach(option => {
@@ -322,19 +389,26 @@ class ThemeLoader {
     
     async showDifficultyModal(theme) {
         const modal = document.getElementById('difficulty-modal');
+        if (!modal) {
+            console.error('❌ Модальное окно difficulty-modal не найдено');
+            return;
+        }
+        
         const icon = modal.querySelector('.difficulty-theme-icon');
         const title = modal.querySelector('.difficulty-theme-title');
         
         // Устанавливаем данные темы
-        icon.textContent = theme.icon;
-        title.textContent = theme.title;
+        if (icon) icon.textContent = theme.icon;
+        if (title) title.textContent = theme.title;
         modal.dataset.currentTheme = theme.id;
         
         // Загружаем и отображаем прогресс
         await this.loadProgressForDifficulties(theme.id);
         
         // Показываем модальное окно
+        console.log('✅ Показываем модальное окно выбора сложности');
         modal.classList.remove('hidden');
+        modal.style.display = 'flex'; // Safari fix
         
         // Блокируем скролл body
         document.body.style.overflow = 'hidden';
@@ -353,10 +427,12 @@ class ThemeLoader {
         
         // Если пользователь не авторизован или нет progressManager - ничего не показываем
         if (!window.progressManager || !window.authManager || !window.authManager.isLoggedIn()) {
+            console.log('ℹ️ Прогресс не загружается - пользователь не авторизован');
             return;
         }
         
         try {
+            console.log('📊 Загружаем прогресс для темы:', themeId);
             // Получаем прогресс по всем сложностям
             for (let difficulty = 1; difficulty <= 3; difficulty++) {
                 const progress = await progressManager.getThemeProgress(themeId, difficulty);
@@ -369,17 +445,26 @@ class ThemeLoader {
                         progressEl.style.display = 'block';
                         progressEl.style.color = accuracy >= 90 ? '#10b981' : accuracy >= 70 ? '#f59e0b' : '#6b7280';
                         progressEl.style.fontWeight = '600';
+                        console.log(`  ⭐${'⭐'.repeat(difficulty)} ${accuracy}%`);
                     }
                 }
             }
         } catch (error) {
-            console.error('Ошибка загрузки прогресса:', error);
+            console.error('❌ Ошибка загрузки прогресса:', error);
         }
     }
     
     hideDifficultyModal() {
         const modal = document.getElementById('difficulty-modal');
+        if (!modal) return;
+        
+        console.log('✅ Скрываем модальное окно выбора сложности');
         modal.classList.add('hidden');
+        modal.style.display = 'none'; // Safari fix
+        
+        // Возвращаем скролл
+        document.body.style.overflow = '';
+    }
         
         // Возвращаем скролл
         document.body.style.overflow = '';
