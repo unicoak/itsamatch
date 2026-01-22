@@ -664,19 +664,10 @@ if (!document.getElementById('dragdrop-styles')) {
 
 // Инициализация после загрузки контроллера
 document.addEventListener('DOMContentLoaded', () => {
-    let attempts = 0;
-    const maxAttempts = 50; // 5 секунд максимум
-    
     const checkController = setInterval(() => {
-        attempts++;
-        
         if (window.gameController) {
             window.dragDropManager = new DragDropManager(window.gameController);
             clearInterval(checkController);
-            console.log('✅ DragDropManager инициализирован');
-        } else if (attempts >= maxAttempts) {
-            clearInterval(checkController);
-            console.error('❌ gameController не найден после 5 секунд');
         }
     }, 100);
 });

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игра на сопоставление</title>
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
@@ -32,9 +31,9 @@
                 </div>
                 
                 <!-- Кнопка входа (до авторизации) -->
-                <button id="login-btn" class="nav-btn">
+                <a href="index.html" id="login-btn" class="nav-btn">
                     🔐 Войти
-                </button>
+                </a>
                 
                 <!-- Профиль пользователя (после авторизации) -->
                 <div id="user-profile" class="user-profile" style="display: none;">
@@ -117,57 +116,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Вход/Регистрация -->
-    <div id="auth-modal" class="auth-modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content auth-modal-content">
-            <button class="modal-close" id="auth-modal-close">×</button>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Вход</button>
-                <button class="auth-tab" data-tab="register">Регистрация</button>
-            </div>
-            
-            <!-- Форма входа -->
-            <div id="login-form" class="auth-form active">
-                <h2>Вход в аккаунт</h2>
-                <form id="login-form-element">
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input type="email" id="login-email" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Пароль</label>
-                        <input type="password" id="login-password" required placeholder="Минимум 6 символов">
-                    </div>
-                    <div id="login-error" class="error-message"></div>
-                    <button type="submit" class="auth-submit-btn">Войти</button>
-                </form>
-            </div>
-            
-            <!-- Форма регистрации -->
-            <div id="register-form" class="auth-form">
-                <h2>Создать аккаунт</h2>
-                <form id="register-form-element">
-                    <div class="form-group">
-                        <label for="register-name">Имя</label>
-                        <input type="text" id="register-name" required placeholder="Как вас зовут?" maxlength="20">
-                    </div>
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input type="email" id="register-email" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password">Пароль</label>
-                        <input type="password" id="register-password" required placeholder="Минимум 6 символов">
-                    </div>
-                    <div id="register-error" class="error-message"></div>
-                    <button type="submit" class="auth-submit-btn">Зарегистрироваться</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Модальное окно: Выбор сложности -->
     <div id="difficulty-modal" class="difficulty-modal hidden">
         <div class="difficulty-overlay"></div>
@@ -241,7 +189,6 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/progress.js"></script>
-
-    <script src="js/main.js"></script>
+    <script src="js/login-page.js"></script>
 </body>
 </html>
