@@ -61,12 +61,12 @@ class GameView {
         const leftTitleEl = document.getElementById('left-column-title');
         const rightTitleEl = document.getElementById('right-column-title');
         
-        if (titleEl) titleEl.textContent = themeData.name;
+        if (titleEl) titleEl.textContent = themeData.title;
         if (descEl) descEl.textContent = themeData.description || '';
-        if (leftTitleEl) leftTitleEl.textContent = themeData.leftColumnName || 'Левая колонка';
-        if (rightTitleEl) rightTitleEl.textContent = themeData.rightColumnName || 'Правая колонка';
+        if (leftTitleEl) leftTitleEl.textContent = themeData.leftColumn?.title || 'Левая колонка';
+        if (rightTitleEl) rightTitleEl.textContent = themeData.rightColumn?.title || 'Правая колонка';
         
-        console.log('✅ Заголовки обновлены:', themeData.name);
+        console.log('✅ Заголовки обновлены:', themeData.title);
     }
     
     // ═══════════════════════════════════════════════════════════
