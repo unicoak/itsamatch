@@ -562,7 +562,6 @@ class DragDropManager {
         if (deltaX > 10 || deltaY > 10) {
             this.hasMoved = true;
             this.cancelLongPress();
-            // ВАЖНО: Скрываем tooltip если он уже показан
             this.hideFullTextTooltip();
         }
     }
