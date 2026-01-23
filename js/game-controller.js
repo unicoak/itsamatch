@@ -349,19 +349,23 @@ class GameController {
             if (replacement.action === 'replace') {
                 // Есть новая карточка - заменяем напрямую
                 this.view.replaceCard(replacement.oldCardId, replacement.newCard);
+                
+                // Инициализируем drag-drop ТОЛЬКО для этой новой карточки
+                if (window.dragDropManager) {
+                    const newCardEl = document.getElementById(replacement.newCard.id);
+                    if (newCardEl) {
+                        if (replacement.newCard.side === 'right') {
+                            window.dragDropManager.addRightCardListeners(newCardEl);
+                        } else if (replacement.newCard.side === 'left') {
+                            window.dragDropManager.addLeftCardListeners(newCardEl);
+                        }
+                    }
+                }
             } else if (replacement.action === 'remove') {
                 // Пул пуст - удаляем карточку (grid коллапсирует)
                 this.view.removeCard(replacement.oldCardId);
             }
         });
-        
-        // Переинициализируем drag-drop для новых карточек
-        if (replacements.some(r => r.action === 'replace')) {
-            await this.delay(100); // Даём время DOM обновиться
-            if (window.dragDropManager) {
-                window.dragDropManager.init();
-            }
-        }
         
         // Возвращаем состояние
         this.model.setState('PLAYING');
