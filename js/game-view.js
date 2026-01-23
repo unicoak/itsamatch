@@ -147,23 +147,36 @@ class GameView {
      * Заменить карточку на новую (прямая замена без удаления)
      */
     replaceCard(oldCardId, newCardData) {
+        console.log('      [VIEW] replaceCard() вызван');
+        console.log('      [VIEW] Старая:', oldCardId);
+        console.log('      [VIEW] Новая:', newCardData.id);
+        
         const oldCard = document.getElementById(oldCardId);
         if (!oldCard) {
-            console.warn(`⚠️ Старая карточка ${oldCardId} не найдена в DOM`);
+            console.warn(`      [VIEW] ⚠️ Старая карточка ${oldCardId} не найдена в DOM`);
             return;
         }
+        
+        console.log('      [VIEW] Старая карточка найдена, создаём новую...');
         
         // Создаём новую карточку
         const newCard = this.createCardElement(newCardData);
         newCard.classList.add('card-new');
         
+        console.log('      [VIEW] Замена в DOM через replaceChild...');
+        
         // Заменяем в DOM (сохраняет позицию автоматически!)
         oldCard.parentNode.replaceChild(newCard, oldCard);
         
-        // Убираем анимацию появления
-        setTimeout(() => newCard.classList.remove('card-new'), 500);
+        console.log('      [VIEW] ✓ replaceChild выполнен');
         
-        console.log(`♻️ Заменена карточка ${oldCardId} → ${newCardData.id}`);
+        // Убираем анимацию появления
+        setTimeout(() => {
+            newCard.classList.remove('card-new');
+            console.log('      [VIEW] ✓ Анимация card-new удалена');
+        }, 500);
+        
+        console.log(`      [VIEW] ✓ Замена завершена: ${oldCardId} → ${newCardData.id}`);
     }
     
     /**

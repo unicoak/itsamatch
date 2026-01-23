@@ -41,6 +41,8 @@ class DragDropManager {
     }
 
     addRightCardListeners(card) {
+        console.log('      [DRAG-DROP] 🎧 addRightCardListeners() для:', card.id);
+        
         // Клик для выбора карточки
         card.addEventListener('click', (e) => this.handleCardClick(e, card));
         
@@ -71,9 +73,13 @@ class DragDropManager {
             this.hideFullTextTooltip();
             this.handleTouchEnd(e, card);
         });
+        
+        console.log('      [DRAG-DROP] ✓ Правые обработчики установлены для:', card.id);
     }
 
     addLeftCardListeners(card) {
+        console.log('      [DRAG-DROP] 🎧 addLeftCardListeners() для:', card.id);
+        
         // Клик для выбора/сопоставления карточки
         card.addEventListener('click', (e) => this.handleCardClick(e, card));
         
@@ -102,6 +108,8 @@ class DragDropManager {
             this.cancelLongPress();
             this.hideFullTextTooltip();
         });
+        
+        console.log('      [DRAG-DROP] ✓ Левые обработчики установлены для:', card.id);
     }
 
     // ============ МЕХАНИКА КЛИКОВ ============

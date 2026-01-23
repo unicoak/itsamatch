@@ -307,69 +307,107 @@ class GameController {
      * Обработка правильного совпадения
      */
     async handleCorrectMatch(result) {
-        console.log('✅ Правильное совпадение!');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ НАЧАЛО: Правильное совпадение!');
+        console.log('   Card 1:', result.card1.id, '→', result.card1.text);
+        console.log('   Card 2:', result.card2.id, '→', result.card2.text);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
         // Блокируем взаимодействие
+        console.log('🔒 Блокировка взаимодействия');
         this.view.setInteractionEnabled(false);
         
         // Звук
         if (window.soundManager) {
+            console.log('🔊 Воспроизведение звука успеха');
             window.soundManager.playSuccess();
         }
         
         // Применяем к модели (помечает как matched, но НЕ удаляет с доски)
+        console.log('📝 Обновление модели (помечаем карточки как matched)');
         this.model.applyMatch(result.card1.id, result.card2.id);
         
         // Анимация совпадения (зелёная вспышка)
+        console.log('🎨 Запуск зелёной анимации');
         this.view.showCorrectMatch(result.card1.id, result.card2.id);
         
         // Показываем описание пары
         if (result.description) {
+            console.log('💬 Показ описания пары:', result.description.substring(0, 50) + '...');
             this.view.showMatchDescription(result.description);
         }
         
         // Обновляем UI (счёт, комбо)
+        console.log('📊 Обновление UI (счёт, комбо)');
         this.updateAllUI();
         
         // Ждём завершения всех анимаций
+        console.log('⏳ Ожидание завершения анимаций (1000ms)...');
         await this.delay(1000);
+        console.log('✓ Анимации завершены');
         
         // Проверяем завершение игры
         if (this.model.isGameFinished()) {
+            console.log('🏁 Игра завершена!');
             await this.delay(500);
             this.handleGameComplete();
             return;
         }
         
         // Получаем замены для совпавших карточек
+        console.log('🔄 Запрос замен для совпавших карточек...');
         const replacements = this.model.getReplacements(result.card1.id, result.card2.id);
+        console.log('📦 Получено замен:', replacements.length);
         
         // Применяем замены/удаления
-        replacements.forEach(replacement => {
+        console.log('━━━ НАЧАЛО ЗАМЕН ━━━');
+        replacements.forEach((replacement, index) => {
+            console.log(`\n🔹 Замена ${index + 1}/${replacements.length}:`);
+            console.log('   Действие:', replacement.action);
+            console.log('   Старая карточка:', replacement.oldCardId);
+            
             if (replacement.action === 'replace') {
+                console.log('   Новая карточка:', replacement.newCard.id, '→', replacement.newCard.text);
+                console.log('   Сторона:', replacement.newCard.side);
+                
                 // Есть новая карточка - заменяем напрямую
+                console.log('   ➜ Замена в DOM...');
                 this.view.replaceCard(replacement.oldCardId, replacement.newCard);
+                console.log('   ✓ DOM обновлён');
                 
                 // Инициализируем drag-drop ТОЛЬКО для этой новой карточки
                 if (window.dragDropManager) {
                     const newCardEl = document.getElementById(replacement.newCard.id);
                     if (newCardEl) {
+                        console.log('   ➜ Добавление обработчиков событий...');
                         if (replacement.newCard.side === 'right') {
                             window.dragDropManager.addRightCardListeners(newCardEl);
+                            console.log('   ✓ Правые обработчики добавлены');
                         } else if (replacement.newCard.side === 'left') {
                             window.dragDropManager.addLeftCardListeners(newCardEl);
+                            console.log('   ✓ Левые обработчики добавлены');
                         }
+                    } else {
+                        console.warn('   ⚠️ Карточка не найдена в DOM!');
                     }
                 }
             } else if (replacement.action === 'remove') {
+                console.log('   ➜ Удаление карточки (пул пуст)...');
                 // Пул пуст - удаляем карточку (grid коллапсирует)
                 this.view.removeCard(replacement.oldCardId);
+                console.log('   ✓ Карточка удалена');
             }
         });
+        console.log('━━━ КОНЕЦ ЗАМЕН ━━━\n');
         
         // Возвращаем состояние
+        console.log('🔓 Разблокировка взаимодействия');
         this.model.setState('PLAYING');
         this.view.setInteractionEnabled(true);
+        
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ КОНЕЦ: Обработка совпадения завершена');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     }
     
     /**
