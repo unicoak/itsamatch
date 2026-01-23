@@ -317,10 +317,10 @@ class GameController {
             window.soundManager.playSuccess();
         }
         
-        // Применяем к модели
+        // Применяем к модели (помечает как matched, но НЕ удаляет с доски)
         this.model.applyMatch(result.card1.id, result.card2.id);
         
-        // Анимация
+        // Анимация совпадения (зелёная вспышка)
         this.view.showCorrectMatch(result.card1.id, result.card2.id);
         
         // Показываем описание пары
@@ -328,30 +328,36 @@ class GameController {
             this.view.showMatchDescription(result.description);
         }
         
-        // Обновляем UI
+        // Обновляем UI (счёт, комбо)
         this.updateAllUI();
         
-        // Ждём анимацию
+        // Ждём завершения всех анимаций
         await this.delay(1000);
         
-        // Удаляем из view
-        this.view.removeMatchedCards([result.card1.id, result.card2.id]);
-        
-        // Проверяем завершение
+        // Проверяем завершение игры
         if (this.model.isGameFinished()) {
             await this.delay(500);
             this.handleGameComplete();
             return;
         }
         
-        // Добираем новые карточки
-        const newCards = this.model.refillBoard();
+        // Получаем замены для совпавших карточек
+        const replacements = this.model.getReplacements(result.card1.id, result.card2.id);
         
-        if (newCards.length > 0) {
-            await this.delay(500);
-            this.view.addNewCards(newCards);
-            
-            // Инициализируем drag-drop для новых карточек
+        // Применяем замены/удаления
+        replacements.forEach(replacement => {
+            if (replacement.action === 'replace') {
+                // Есть новая карточка - заменяем напрямую
+                this.view.replaceCard(replacement.oldCardId, replacement.newCard);
+            } else if (replacement.action === 'remove') {
+                // Пул пуст - удаляем карточку (grid коллапсирует)
+                this.view.removeCard(replacement.oldCardId);
+            }
+        });
+        
+        // Переинициализируем drag-drop для новых карточек
+        if (replacements.some(r => r.action === 'replace')) {
+            await this.delay(100); // Даём время DOM обновиться
             if (window.dragDropManager) {
                 window.dragDropManager.init();
             }

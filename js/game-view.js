@@ -144,7 +144,42 @@ class GameView {
     }
     
     /**
+     * Заменить карточку на новую (прямая замена без удаления)
+     */
+    replaceCard(oldCardId, newCardData) {
+        const oldCard = document.getElementById(oldCardId);
+        if (!oldCard) {
+            console.warn(`⚠️ Старая карточка ${oldCardId} не найдена в DOM`);
+            return;
+        }
+        
+        // Создаём новую карточку
+        const newCard = this.createCardElement(newCardData);
+        newCard.classList.add('card-new');
+        
+        // Заменяем в DOM (сохраняет позицию автоматически!)
+        oldCard.parentNode.replaceChild(newCard, oldCard);
+        
+        // Убираем анимацию появления
+        setTimeout(() => newCard.classList.remove('card-new'), 500);
+        
+        console.log(`♻️ Заменена карточка ${oldCardId} → ${newCardData.id}`);
+    }
+    
+    /**
+     * Удалить карточку (когда пул пуст)
+     */
+    removeCard(cardId) {
+        const card = document.getElementById(cardId);
+        if (card) {
+            card.remove();
+            console.log(`🗑️ Удалена карточка ${cardId} (пул пуст)`);
+        }
+    }
+    
+    /**
      * Добавить новые карточки с анимацией
+     * DEPRECATED: Используйте replaceCard вместо этого
      */
     addNewCards(newCards) {
         newCards.forEach(cardData => {
@@ -216,6 +251,7 @@ class GameView {
     
     /**
      * Удалить matched карточки из DOM
+     * DEPRECATED: Используйте removeCard или replaceCard
      */
     removeMatchedCards(cardIds) {
         cardIds.forEach(cardId => {

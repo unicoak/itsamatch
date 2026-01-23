@@ -285,18 +285,9 @@ class GameModel {
         card1.state = 'matched';
         card2.state = 'matched';
         
-        // Сохраняем позиции карточек для вставки новых на их место
-        const leftIndex = this.boardCards.left.findIndex(c => c.id === cardId1 || c.id === cardId2);
-        const rightIndex = this.boardCards.right.findIndex(c => c.id === cardId1 || c.id === cardId2);
+        // НЕ удаляем с доски - они будут заменены новыми карточками
+        // Или удалены если пул пуст
         
-        this.lastMatchedPositions = {
-            left: leftIndex >= 0 ? leftIndex : null,
-            right: rightIndex >= 0 ? rightIndex : null
-        };
-        
-        // Убираем с доски
-        this.boardCards.left = this.boardCards.left.filter(c => c.id !== cardId1 && c.id !== cardId2);
-        this.boardCards.right = this.boardCards.right.filter(c => c.id !== cardId1 && c.id !== cardId2);
         
         // Обновляем счётчики
         this.correctAnswers++;
@@ -327,40 +318,82 @@ class GameModel {
     }
     
     /**
-     * Добрать новые карточки из пула
+     * Получить замену для совпавших карточек
+     * Возвращает объект с информацией о замене или удалении
      */
-    refillBoard() {
-        const newCards = [];
+    getReplacements(cardId1, cardId2) {
+        const replacements = [];
         
-        // Добираем карточки на места удалённых
-        // Используем сохранённые позиции если они есть, иначе добавляем в конец
+        // Определяем какая карточка с какой стороны
+        const card1 = this.cards.find(c => c.id === cardId1);
+        const card2 = this.cards.find(c => c.id === cardId2);
         
-        if (this.poolCards.left.length > 0) {
-            const card = this.poolCards.left.shift();
-            card.state = 'active';
+        if (!card1 || !card2) return replacements;
+        
+        // Для левой карточки
+        if (card1.side === 'left' || card2.side === 'left') {
+            const oldCardId = card1.side === 'left' ? cardId1 : cardId2;
             
-            // Вставляем на позицию удалённой карточки или в конец
-            const insertIndex = this.lastMatchedPositions?.left ?? this.boardCards.left.length;
-            this.boardCards.left.splice(insertIndex, 0, card);
-            newCards.push({...card, insertIndex, side: 'left'});
+            if (this.poolCards.left.length > 0) {
+                // Есть замена - берём новую карточку
+                const newCard = this.poolCards.left.shift();
+                newCard.state = 'active';
+                
+                // Заменяем в boardCards массиве
+                const index = this.boardCards.left.findIndex(c => c.id === oldCardId);
+                if (index >= 0) {
+                    this.boardCards.left[index] = newCard;
+                }
+                
+                replacements.push({
+                    action: 'replace',
+                    oldCardId: oldCardId,
+                    newCard: newCard
+                });
+            } else {
+                // Нет замены - нужно удалить
+                this.boardCards.left = this.boardCards.left.filter(c => c.id !== oldCardId);
+                
+                replacements.push({
+                    action: 'remove',
+                    oldCardId: oldCardId
+                });
+            }
         }
         
-        if (this.poolCards.right.length > 0) {
-            const card = this.poolCards.right.shift();
-            card.state = 'active';
+        // Для правой карточки
+        if (card1.side === 'right' || card2.side === 'right') {
+            const oldCardId = card1.side === 'right' ? cardId1 : cardId2;
             
-            // Вставляем на позицию удалённой карточки или в конец
-            const insertIndex = this.lastMatchedPositions?.right ?? this.boardCards.right.length;
-            this.boardCards.right.splice(insertIndex, 0, card);
-            newCards.push({...card, insertIndex, side: 'right'});
+            if (this.poolCards.right.length > 0) {
+                // Есть замена - берём новую карточку
+                const newCard = this.poolCards.right.shift();
+                newCard.state = 'active';
+                
+                // Заменяем в boardCards массиве
+                const index = this.boardCards.right.findIndex(c => c.id === oldCardId);
+                if (index >= 0) {
+                    this.boardCards.right[index] = newCard;
+                }
+                
+                replacements.push({
+                    action: 'replace',
+                    oldCardId: oldCardId,
+                    newCard: newCard
+                });
+            } else {
+                // Нет замены - нужно удалить
+                this.boardCards.right = this.boardCards.right.filter(c => c.id !== oldCardId);
+                
+                replacements.push({
+                    action: 'remove',
+                    oldCardId: oldCardId
+                });
+            }
         }
         
-        // Очищаем сохранённые позиции
-        this.lastMatchedPositions = null;
-        
-        console.log(`🔄 Добрано ${newCards.length} карточек`);
-        
-        return newCards;
+        console.log(`🔄 Подготовлено замен: ${replacements.length}`);
+        return replacements;
     }
     
     // ═══════════════════════════════════════════════════════════
