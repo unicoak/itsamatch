@@ -358,7 +358,11 @@ class GameController {
         console.log('🔄 Запрос замен для совпавших карточек...');
         const replacements = this.model.getReplacements(result.card1.id, result.card2.id);
         console.log('📦 Получено замен:', replacements.length);
-        
+        // Очищаем состояние drag-drop перед заменами
+        if (window.dragDropManager) {
+            console.log('🧹 Очистка состояния drag-drop перед заменами');
+            window.dragDropManager.reset();
+        }
         // Применяем замены/удаления
         console.log('━━━ НАЧАЛО ЗАМЕН ━━━');
         replacements.forEach((replacement, index) => {

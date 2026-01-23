@@ -14,7 +14,7 @@
 class SoundManager {
     constructor() {
         // Настройки (загружаются из localStorage)
-        this.enabled = localStorage.getItem('soundEnabled') !== 'false'; // По умолчанию вкл
+        this.enabled = localStorage.getItem('soundEnabled') !== 'true'; // По умолчанию выкл
         this.volume = parseFloat(localStorage.getItem('soundVolume') || '0.5'); // 0.0 - 1.0
         
         // Audio Context (создаётся лениво при первом звуке)
