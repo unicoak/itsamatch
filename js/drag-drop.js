@@ -275,7 +275,8 @@ class DragDropManager {
             return;
         }
         
-        e.preventDefault();
+        // НЕ вызываем preventDefault здесь - пусть click сработает для tap!
+        // e.preventDefault(); будет вызван в touchmove если начнется drag
         
         // ВАЖНО: Уведомляем контроллер о начале перетаскивания (как в desktop drag)
         if (!this.gameController.handleCardDragStart(card.dataset.cardId)) {
@@ -297,8 +298,6 @@ class DragDropManager {
     handleTouchMove(e, card) {
         if (!this.draggedElement) return;
         
-        e.preventDefault();
-        
         const touch = e.touches[0];
         
         // Проверяем было ли движение
@@ -309,6 +308,9 @@ class DragDropManager {
             // Если сдвинулся больше 10px - это drag, создаем клон
             if (deltaX > 10 || deltaY > 10) {
                 this.hasMovedForDrag = true;
+                
+                // ВАЖНО: Теперь блокируем скроллинг и click для drag
+                e.preventDefault();
                 
                 console.log('📱 Движение обнаружено - создаем клон');
                 
@@ -329,6 +331,9 @@ class DragDropManager {
                 return;
             }
         }
+        
+        // Блокируем скроллинг во время drag
+        e.preventDefault();
         
         // Если клон уже создан - двигаем его
         if (this.touchClone) {
@@ -355,19 +360,12 @@ class DragDropManager {
                 // Восстанавливаем opacity на случай если что-то изменилось
                 this.draggedElement.style.opacity = '1';
                 
-                // Отменяем long press для tap
-                this.cancelLongPress();
-                this.hideFullTextTooltip();
-                
-                // Очищаем локальное состояние drag
+                // Отменяем drag state, пусть click обработает как обычно
                 this.draggedElement = null;
-                
-                // НЕ обнуляем draggedCardId - пусть click использует его для matching!
-                // if (this.gameController) {
-                //     this.gameController.draggedCardId = null;
-                // }
-                
-                console.log('📱 Tap detected, letting click handle matching');
+                if (this.gameController) {
+                    this.gameController.draggedCardId = null;
+                }
+                console.log('📱 Tap detected, canceling drag state - click will handle it');
                 return;
             }
             
