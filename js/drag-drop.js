@@ -19,6 +19,9 @@ class DragDropManager {
         this.currentTooltip = null;
         this.touchStartPos = { x: 0, y: 0 };
         this.hasMoved = false;
+        
+        // Флаг для определения tap vs drag
+        this.hasMovedForDrag = false;
     }
 
     init() {
@@ -78,11 +81,6 @@ class DragDropManager {
             this.hideFullTextTooltip();
             this.handleTouchEnd(e, card);
         });
-        card.addEventListener('touchcancel', (e) => {
-            this.cancelLongPress();
-            this.hideFullTextTooltip();
-            this.handleTouchEnd(e, card);
-        });
         
         console.log('      [DRAG-DROP] ✓ Правые обработчики установлены для:', card.id);
     }
@@ -121,11 +119,6 @@ class DragDropManager {
         
         card.addEventListener('touchend', (e) => {
             // Отменяем long press и скрываем tooltip
-            this.cancelLongPress();
-            this.hideFullTextTooltip();
-            this.handleTouchEnd(e, card);
-        });
-        card.addEventListener('touchcancel', (e) => {
             this.cancelLongPress();
             this.hideFullTextTooltip();
             this.handleTouchEnd(e, card);
@@ -293,60 +286,120 @@ class DragDropManager {
         this.draggedElement = card;
         const touch = e.touches[0];
         
-        // Создаём визуальный клон для перетаскивания
-        this.createTouchClone(card, touch.clientX, touch.clientY);
+        // Сохраняем начальную позицию (для определения движения)
+        this.touchStartPos = { x: touch.clientX, y: touch.clientY };
+        this.hasMovedForDrag = false;
         
-        // Делаем оригинал полупрозрачным
-        card.style.opacity = '0.4';
+        // НЕ создаем клон здесь! Подождем touchmove чтобы определить tap vs drag
+        console.log('📱 Touch Start - ждем движения для создания клона');
     }
 
     handleTouchMove(e, card) {
-        if (!this.touchClone) return;
+        if (!this.draggedElement) return;
         
         e.preventDefault();
         
         const touch = e.touches[0];
         
-        // Двигаем клон за пальцем
-        this.touchClone.style.left = touch.clientX - this.touchClone.offsetWidth / 2 + 'px';
-        this.touchClone.style.top = touch.clientY - this.touchClone.offsetHeight / 2 + 'px';
+        // Проверяем было ли движение
+        if (!this.hasMovedForDrag) {
+            const deltaX = Math.abs(touch.clientX - this.touchStartPos.x);
+            const deltaY = Math.abs(touch.clientY - this.touchStartPos.y);
+            
+            // Если сдвинулся больше 10px - это drag, создаем клон
+            if (deltaX > 10 || deltaY > 10) {
+                this.hasMovedForDrag = true;
+                
+                console.log('📱 Движение обнаружено - создаем клон');
+                
+                // Теперь создаем клон
+                this.createTouchClone(this.draggedElement, touch.clientX, touch.clientY);
+                
+                // Делаем оригинал полупрозрачным
+                this.draggedElement.style.opacity = '0.4';
+                
+                // Отменяем long press если был
+                this.cancelLongPress();
+            } else {
+                // Еще не двинулся достаточно - не создаем клон
+                // Проверяем движение для long press
+                if (e.touches.length === 1) {
+                    this.checkTouchMovement(e.touches[0]);
+                }
+                return;
+            }
+        }
         
-        // Подсвечиваем drop-зону под пальцем
-        this.highlightDropTarget(touch.clientX, touch.clientY);
+        // Если клон уже создан - двигаем его
+        if (this.touchClone) {
+            this.touchClone.style.left = touch.clientX - this.touchClone.offsetWidth / 2 + 'px';
+            this.touchClone.style.top = touch.clientY - this.touchClone.offsetHeight / 2 + 'px';
+            
+            // Подсвечиваем drop-зону под пальцем
+            this.highlightDropTarget(touch.clientX, touch.clientY);
+        }
+        
+        // Проверяем движение для long press
+        if (e.touches.length === 1) {
+            this.checkTouchMovement(e.touches[0]);
+        }
     }
 
     handleTouchEnd(e, card) {
-        console.log('📱 Touch End - draggedElement:', this.draggedElement?.id);
+        console.log('📱 Touch End - hasMovedForDrag:', this.hasMovedForDrag);
         
-        if (this.draggedElement) {
-            this.draggedElement.style.opacity = '1';
+        // ВАЖНО: Гарантируем очистку состояния даже при ошибках
+        try {
+            // Если не было движения - это был tap, не drag
+            if (!this.hasMovedForDrag && this.draggedElement) {
+                // Восстанавливаем opacity на случай если что-то изменилось
+                this.draggedElement.style.opacity = '1';
+                
+                // Отменяем drag state, пусть click обработает как обычно
+                this.draggedElement = null;
+                if (this.gameController) {
+                    this.gameController.draggedCardId = null;
+                }
+                console.log('📱 Tap detected, canceling drag state - click will handle it');
+                return;
+            }
+            
+            // Было движение - это полноценный drag
+            if (this.draggedElement) {
+                this.draggedElement.style.opacity = '1';
+            }
+            
+            // Удаляем клон
+            if (this.touchClone) {
+                this.touchClone.remove();
+                this.touchClone = null;
+            }
+            
+            // Убираем подсветку
+            document.querySelectorAll('.drop-target').forEach(target => {
+                target.classList.remove('drop-target');
+            });
+            
+            // Проверяем drop
+            const touch = e.changedTouches[0];
+            const dropTarget = this.findDropTarget(touch.clientX, touch.clientY);
+            
+            console.log('📱 Touch End - dropTarget:', dropTarget?.id, 'gameController:', !!this.gameController);
+            
+            if (dropTarget && this.draggedElement && this.gameController) {
+                console.log('✅ Вызываем handleCardDrop:', dropTarget.dataset.cardId);
+                this.gameController.handleCardDrop(dropTarget.dataset.cardId);
+            } else {
+                console.warn('❌ Drop не выполнен. dropTarget:', !!dropTarget, 'draggedElement:', !!this.draggedElement, 'gameController:', !!this.gameController);
+            }
+            
+            this.draggedElement = null;
+            this.hasMovedForDrag = false;
+        } finally {
+            // Гарантируем очистку long press даже при ошибках
+            this.cancelLongPress();
+            this.hideFullTextTooltip();
         }
-        
-        // Удаляем клон
-        if (this.touchClone) {
-            this.touchClone.remove();
-            this.touchClone = null;
-        }
-        
-        // Убираем подсветку
-        document.querySelectorAll('.drop-target').forEach(target => {
-            target.classList.remove('drop-target');
-        });
-        
-        // Проверяем drop
-        const touch = e.changedTouches[0];
-        const dropTarget = this.findDropTarget(touch.clientX, touch.clientY);
-        
-        console.log('📱 Touch End - dropTarget:', dropTarget?.id, 'gameController:', !!this.gameController);
-        
-        if (dropTarget && this.draggedElement && this.gameController) {
-            console.log('✅ Вызываем handleCardDrop:', dropTarget.dataset.cardId);
-            this.gameController.handleCardDrop(dropTarget.dataset.cardId);
-        } else {
-            console.warn('❌ Drop не выполнен. dropTarget:', !!dropTarget, 'draggedElement:', !!this.draggedElement, 'gameController:', !!this.gameController);
-        }
-        
-        this.draggedElement = null;
     }
 
     createTouchClone(element, x, y) {
@@ -390,16 +443,9 @@ class DragDropManager {
             this.touchClone.style.display = 'block';
         }
         
-        // Ищем любую карточку (левую или правую), кроме перетаскиваемой
-        const target = element?.closest('.card:not(.matched)');
+        // Ищем ближайшую левую карточку
+        const target = element?.closest('.card[data-side="left"]:not(.matched)');
         console.log('🎯 findDropTarget - result:', target?.id);
-
-        // Нельзя бросить карту на саму себя
-        if (target === this.draggedElement) {
-            console.log('⚠️ Попытка бросить на саму себя, игнорируем');
-            return null;
-}
-
         return target;
     }
 
@@ -428,11 +474,6 @@ class DragDropManager {
             this.touchClone.parentNode.removeChild(this.touchClone);
             this.touchClone = null;
         }
-        
-        // Принудительно удаляем ВСЕ зависшие клоны из DOM
-        document.querySelectorAll('.touch-clone').forEach(clone => {
-            clone.remove();
-        });
         
         // Очищаем long press состояние
         this.cancelLongPress();
