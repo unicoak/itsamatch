@@ -117,10 +117,8 @@ class GameView {
             card.classList.add('matched');
         }
         
-        // Draggable только правые
-        if (cardData.side === 'right') {
-            card.draggable = true;
-        }
+        // Draggable - all cards
+        card.draggable = true;
         
         // Контент
         const content = document.createElement('div');
