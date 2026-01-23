@@ -14,7 +14,7 @@ class DragDropManager {
         
         // Long press для показа полного текста
         this.longPressTimer = null;
-        this.longPressTimeout = 500; // 500ms для long press
+        this.longPressTimeout = 1500; // 500ms для long press
         this.isLongPressActive = false;
         this.currentTooltip = null;
         this.touchStartPos = { x: 0, y: 0 };
