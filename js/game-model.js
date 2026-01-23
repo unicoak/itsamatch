@@ -366,8 +366,31 @@ class GameModel {
             const oldCardId = card1.side === 'right' ? cardId1 : cardId2;
             
             if (this.poolCards.right.length > 0) {
-                // Есть замена - берём новую карточку
-                const newCard = this.poolCards.right.shift();
+                // Проверяем, останутся ли совпадения после замены
+                const tempBoardRight = this.boardCards.right.filter(c => c.id !== oldCardId);
+                const hasMatchWithoutNew = this.checkAnyMatchExists(this.boardCards.left, tempBoardRight);
+                
+                let newCard;
+                
+                if (!hasMatchWithoutNew) {
+                    // Нет совпадений без новой карточки - нужно гарантировать совпадение
+                    console.log('⚠️ Нет совпадений на доске, ищем карточку с гарантией совпадения');
+                    newCard = this.findMatchingCard(this.poolCards.right, this.boardCards.left);
+                    
+                    if (!newCard) {
+                        // Если не нашли совпадающую, берём первую (край редкий случай)
+                        console.warn('⚠️ Не найдено совпадающей карточки в пуле, берём первую');
+                        newCard = this.poolCards.right.shift();
+                    } else {
+                        // Удаляем найденную карточку из пула
+                        this.poolCards.right = this.poolCards.right.filter(c => c.id !== newCard.id);
+                        console.log(`✓ Найдена совпадающая карточка: ${newCard.id} (pairId: ${newCard.pairId})`);
+                    }
+                } else {
+                    // Есть другие совпадения, берём первую карточку из пула
+                    newCard = this.poolCards.right.shift();
+                }
+                
                 newCard.state = 'active';
                 
                 // Заменяем в boardCards массиве
@@ -442,6 +465,34 @@ class GameModel {
             [result[i], result[j]] = [result[j], result[i]];
         }
         return result;
+    }
+    
+    /**
+     * Проверить, есть ли хотя бы одно совпадение между двумя массивами карточек
+     */
+    checkAnyMatchExists(leftCards, rightCards) {
+        for (let leftCard of leftCards) {
+            for (let rightCard of rightCards) {
+                if (leftCard.pairId === rightCard.pairId) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Найти карточку из пула, которая совпадает с любой карточкой на доске
+     */
+    findMatchingCard(poolCards, boardCards) {
+        for (let poolCard of poolCards) {
+            for (let boardCard of boardCards) {
+                if (poolCard.pairId === boardCard.pairId) {
+                    return poolCard;
+                }
+            }
+        }
+        return null;
     }
     
     /**
