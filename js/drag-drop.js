@@ -380,9 +380,16 @@ class DragDropManager {
             this.touchClone.style.display = 'block';
         }
         
-        // Ищем ближайшую левую карточку
-        const target = element?.closest('.card[data-side="left"]:not(.matched)');
+        // Ищем любую карточку (левую или правую), кроме перетаскиваемой
+        const target = element?.closest('.card:not(.matched)');
         console.log('🎯 findDropTarget - result:', target?.id);
+
+        // Нельзя бросить карту на саму себя
+        if (target === this.draggedElement) {
+            console.log('⚠️ Попытка бросить на саму себя, игнорируем');
+            return null;
+}
+
         return target;
     }
 
