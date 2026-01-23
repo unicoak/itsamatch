@@ -360,6 +360,10 @@ class DragDropManager {
                 // Восстанавливаем opacity на случай если что-то изменилось
                 this.draggedElement.style.opacity = '1';
                 
+                // ВАЖНО: Отменяем long press для tap
+                this.cancelLongPress();
+                this.hideFullTextTooltip();
+                
                 // Отменяем drag state, пусть click обработает как обычно
                 this.draggedElement = null;
                 if (this.gameController) {
@@ -471,6 +475,11 @@ class DragDropManager {
             this.selectedCard = null;
         }
         
+        // Принудительно убираем selected класс со ВСЕХ карточек
+        document.querySelectorAll('.card.selected').forEach(card => {
+            card.classList.remove('selected');
+        });
+
         // Очищаем drag состояние
         this.draggedElement = null;
         
@@ -480,6 +489,11 @@ class DragDropManager {
             this.touchClone = null;
         }
         
+        // Принудительно удаляем ВСЕ зависшие клоны из DOM
+        document.querySelectorAll('.touch-clone').forEach(clone => {
+            clone.remove();
+        });
+
         // Очищаем long press состояние
         this.cancelLongPress();
         this.hideFullTextTooltip();
