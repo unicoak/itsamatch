@@ -188,7 +188,6 @@ class ThemeLoader {
                 <div class="theme-description-hover">${theme.description}</div>
                 <div class="theme-meta">
                     ${badge}
-                    <button class="play-button">Играть</button>
                 </div>
             </div>
         `;
