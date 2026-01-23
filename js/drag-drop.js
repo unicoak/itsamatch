@@ -78,6 +78,11 @@ class DragDropManager {
             this.hideFullTextTooltip();
             this.handleTouchEnd(e, card);
         });
+        card.addEventListener('touchcancel', (e) => {
+            this.cancelLongPress();
+            this.hideFullTextTooltip();
+            this.handleTouchEnd(e, card);
+        });
         
         console.log('      [DRAG-DROP] ✓ Правые обработчики установлены для:', card.id);
     }
@@ -116,6 +121,11 @@ class DragDropManager {
         
         card.addEventListener('touchend', (e) => {
             // Отменяем long press и скрываем tooltip
+            this.cancelLongPress();
+            this.hideFullTextTooltip();
+            this.handleTouchEnd(e, card);
+        });
+        card.addEventListener('touchcancel', (e) => {
             this.cancelLongPress();
             this.hideFullTextTooltip();
             this.handleTouchEnd(e, card);
