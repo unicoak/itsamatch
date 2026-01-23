@@ -98,6 +98,23 @@ class GameView {
             this.rightContainer.appendChild(el);
         });
         
+        // Добавляем обработчики событий после того как все карточки в DOM
+        if (window.dragDropManager) {
+            leftCards.forEach(card => {
+                const el = document.getElementById(card.id);
+                if (el && card.state !== 'matched') {
+                    window.dragDropManager.addLeftCardListeners(el);
+                }
+            });
+            
+            rightCards.forEach(card => {
+                const el = document.getElementById(card.id);
+                if (el && card.state !== 'matched') {
+                    window.dragDropManager.addRightCardListeners(el);
+                }
+            });
+        }
+        
         console.log(`🎨 Отображено: ${leftCards.length} левых, ${rightCards.length} правых`);
     }
     
@@ -125,18 +142,6 @@ class GameView {
         content.className = 'card-content';
         content.textContent = cardData.text;
         card.appendChild(content);
-        
-        // ВАЖНО: Добавляем обработчики через dragDropManager
-        // Делаем это асинхронно, чтобы карточка успела добавиться в DOM
-        requestAnimationFrame(() => {
-            if (window.dragDropManager && cardData.state !== 'matched') {
-                if (cardData.side === 'right') {
-                    window.dragDropManager.addRightCardListeners(card);
-                } else if (cardData.side === 'left') {
-                    window.dragDropManager.addLeftCardListeners(card);
-                }
-            }
-        });
         
         return card;
     }
