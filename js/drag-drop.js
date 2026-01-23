@@ -14,7 +14,7 @@ class DragDropManager {
         
         // Long press для показа полного текста
         this.longPressTimer = null;
-        this.longPressTimeout = 1500; // 500ms для long press
+        this.longPressTimeout = 500; // 500ms для long press
         this.isLongPressActive = false;
         this.currentTooltip = null;
         this.touchStartPos = { x: 0, y: 0 };
@@ -276,7 +276,7 @@ class DragDropManager {
         }
         
         // НЕ вызываем preventDefault здесь - пусть click сработает для tap!
-        // e.preventDefault(); будет вызван в touchmove если начнется drag
+        e.preventDefault(); будет вызван в touchmove если начнется drag
         
         // ВАЖНО: Уведомляем контроллер о начале перетаскивания (как в desktop drag)
         if (!this.gameController.handleCardDragStart(card.dataset.cardId)) {
