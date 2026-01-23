@@ -321,7 +321,7 @@ class GameView {
     updateCombo(combo) {
         if (!this.comboEl) return;
         
-        if (combo > 1) {
+        if (combo > 5) {
             this.comboEl.textContent = `×${combo}`;
             this.comboEl.parentElement?.classList.add('active');
             
