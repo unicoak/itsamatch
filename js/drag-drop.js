@@ -419,6 +419,20 @@ class DragDropManager {
             this.touchClone = null;
         }
         
+        // Принудительно удаляем ВСЕ зависшие клоны из DOM
+        document.querySelectorAll('.touch-clone').forEach(clone => {
+            clone.remove();
+        });
+        
+        // Очищаем long press состояние
+        this.cancelLongPress();
+        this.hideFullTextTooltip();
+        
+        // Восстанавливаем opacity у всех карточек (на случай зависших)
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.opacity = '1';
+        });
+        
         console.log('DragDropManager состояние очищено');
     }
     
