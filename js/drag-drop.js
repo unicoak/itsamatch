@@ -46,9 +46,14 @@ class DragDropManager {
         // Клик для выбора карточки
         card.addEventListener('click', (e) => this.handleCardClick(e, card));
         
-        // Desktop drag
+        // Desktop drag (правые карточки draggable)
         card.addEventListener('dragstart', (e) => this.handleDragStart(e, card));
         card.addEventListener('dragend', (e) => this.handleDragEnd(e, card));
+        
+        // Desktop drop (теперь правые карточки тоже drop targets!)
+        card.addEventListener('dragover', (e) => this.handleDragOver(e, card));
+        card.addEventListener('dragleave', (e) => this.handleDragLeave(e, card));
+        card.addEventListener('drop', (e) => this.handleDrop(e, card));
         
         // Mobile touch (с поддержкой long press)
         card.addEventListener('touchstart', (e) => {
@@ -83,17 +88,22 @@ class DragDropManager {
         // Клик для выбора/сопоставления карточки
         card.addEventListener('click', (e) => this.handleCardClick(e, card));
         
-        // Desktop drop
+        // Desktop drag (теперь левые карточки тоже draggable!)
+        card.addEventListener('dragstart', (e) => this.handleDragStart(e, card));
+        card.addEventListener('dragend', (e) => this.handleDragEnd(e, card));
+        
+        // Desktop drop (левые карточки остаются drop targets)
         card.addEventListener('dragover', (e) => this.handleDragOver(e, card));
         card.addEventListener('dragleave', (e) => this.handleDragLeave(e, card));
         card.addEventListener('drop', (e) => this.handleDrop(e, card));
         
-        // Mobile touch для long press (левые карточки не draggable, но нужен long press)
+        // Mobile touch (с поддержкой long press)
         card.addEventListener('touchstart', (e) => {
             // Запускаем long press таймер
             if (e.touches.length === 1) {
                 this.startLongPress(card, e.touches[0]);
             }
+            this.handleTouchStart(e, card);
         }, { passive: false });
         
         card.addEventListener('touchmove', (e) => {
@@ -101,12 +111,14 @@ class DragDropManager {
             if (e.touches.length === 1) {
                 this.checkTouchMovement(e.touches[0]);
             }
+            this.handleTouchMove(e, card);
         }, { passive: false });
         
         card.addEventListener('touchend', (e) => {
             // Отменяем long press и скрываем tooltip
             this.cancelLongPress();
             this.hideFullTextTooltip();
+            this.handleTouchEnd(e, card);
         });
         
         console.log('      [DRAG-DROP] ✓ Левые обработчики установлены для:', card.id);
