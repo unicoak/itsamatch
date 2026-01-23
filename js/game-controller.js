@@ -166,9 +166,25 @@ class GameController {
      * Выбор пар по сложности
      */
     selectPairsByDifficulty(allPairs, difficulty) {
+        // Helper function to shuffle arrays
+        const shuffle = (array) => {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        };
+        
+        // Filter by difficulty
         const easy = allPairs.filter(p => p.difficulty === 1);
         const medium = allPairs.filter(p => p.difficulty === 2);
         const hard = allPairs.filter(p => p.difficulty === 3);
+        
+        // Shuffle BEFORE slicing to get different pairs each game
+        const shuffledEasy = shuffle(easy);
+        const shuffledMedium = shuffle(medium);
+        const shuffledHard = shuffle(hard);
         
         // Define requirements for each difficulty
         const requirements = {
@@ -180,9 +196,9 @@ class GameController {
         const req = requirements[difficulty] || requirements[2]; // Default to medium
         
         let selected = [
-            ...easy.slice(0, req.easy),
-            ...medium.slice(0, req.medium),
-            ...hard.slice(0, req.hard)
+            ...shuffledEasy.slice(0, req.easy),
+            ...shuffledMedium.slice(0, req.medium),
+            ...shuffledHard.slice(0, req.hard)
         ];
         
         // Если не хватило - берём из всех доступных
