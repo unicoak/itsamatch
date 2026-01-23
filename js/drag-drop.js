@@ -355,12 +355,19 @@ class DragDropManager {
                 // Восстанавливаем opacity на случай если что-то изменилось
                 this.draggedElement.style.opacity = '1';
                 
-                // Отменяем drag state, пусть click обработает как обычно
+                // Отменяем long press для tap
+                this.cancelLongPress();
+                this.hideFullTextTooltip();
+                
+                // Очищаем локальное состояние drag
                 this.draggedElement = null;
-                if (this.gameController) {
-                    this.gameController.draggedCardId = null;
-                }
-                console.log('📱 Tap detected, canceling drag state - click will handle it');
+                
+                // НЕ обнуляем draggedCardId - пусть click использует его для matching!
+                // if (this.gameController) {
+                //     this.gameController.draggedCardId = null;
+                // }
+                
+                console.log('📱 Tap detected, letting click handle matching');
                 return;
             }
             
