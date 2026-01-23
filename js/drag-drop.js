@@ -274,6 +274,12 @@ class DragDropManager {
         
         e.preventDefault();
         
+        // ВАЖНО: Уведомляем контроллер о начале перетаскивания (как в desktop drag)
+        if (!this.gameController.handleCardDragStart(card.dataset.cardId)) {
+            console.warn('⚠️ Touch drag запрещен контроллером');
+            return;
+        }
+        
         this.draggedElement = card;
         const touch = e.touches[0];
         
@@ -300,6 +306,8 @@ class DragDropManager {
     }
 
     handleTouchEnd(e, card) {
+        console.log('📱 Touch End - draggedElement:', this.draggedElement?.id);
+        
         if (this.draggedElement) {
             this.draggedElement.style.opacity = '1';
         }
@@ -319,8 +327,13 @@ class DragDropManager {
         const touch = e.changedTouches[0];
         const dropTarget = this.findDropTarget(touch.clientX, touch.clientY);
         
+        console.log('📱 Touch End - dropTarget:', dropTarget?.id, 'gameController:', !!this.gameController);
+        
         if (dropTarget && this.draggedElement && this.gameController) {
+            console.log('✅ Вызываем handleCardDrop:', dropTarget.dataset.cardId);
             this.gameController.handleCardDrop(dropTarget.dataset.cardId);
+        } else {
+            console.warn('❌ Drop не выполнен. dropTarget:', !!dropTarget, 'draggedElement:', !!this.draggedElement, 'gameController:', !!this.gameController);
         }
         
         this.draggedElement = null;
@@ -361,13 +374,16 @@ class DragDropManager {
         }
         
         const element = document.elementFromPoint(x, y);
+        console.log('🎯 findDropTarget - element:', element?.tagName, element?.className);
         
         if (this.touchClone) {
             this.touchClone.style.display = 'block';
         }
         
         // Ищем ближайшую левую карточку
-        return element?.closest('.card[data-side="left"]:not(.matched)');
+        const target = element?.closest('.card[data-side="left"]:not(.matched)');
+        console.log('🎯 findDropTarget - result:', target?.id);
+        return target;
     }
 
     // ============ АНИМАЦИИ ============
