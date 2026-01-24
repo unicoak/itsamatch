@@ -276,7 +276,7 @@ class DragDropManager {
         }
         
         // НЕ вызываем preventDefault здесь - пусть click сработает для tap!
-        e.preventDefault();
+        //e.preventDefault();
         
         // ВАЖНО: Уведомляем контроллер о начале перетаскивания (как в desktop drag)
         if (!this.gameController.handleCardDragStart(card.dataset.cardId)) {
