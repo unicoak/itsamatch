@@ -9,12 +9,12 @@
  * - Легко тестируется
  * - Переиспользуется (мобильная версия, Telegram)
  * 
- * @version 5.0 - Поддержка множественных правых карточек с разной сложностью
+ * @version 4.0
  */
 
 class GameModel {
     constructor() {
-        console.log('📊 Инициализация GameModel v5.0');
+        console.log('📊 Инициализация GameModel v4.0');
         
         // ═══════════════════════════════════════════════════════
         // FSM - СОСТОЯНИЕ ИГРЫ
@@ -135,191 +135,66 @@ class GameModel {
     // ═══════════════════════════════════════════════════════════
     
     /**
-     * Инициализация карточек с умным подбором по сложности
-     * @param {Array} pairs - Массив пар с множественными правыми карточками
-     * @param {Object} distribution - Распределение: { easy: N, medium: N, hard: N }
+     * Создать карточки из пар
      */
-    initializeCards(pairs, distribution) {
-        console.log(`🎴 Инициализация: ${pairs.length} пар источника`);
-        console.log(`📊 Распределение:`, distribution);
+    initializeCards(pairs) {
+        console.log(`🎴 Инициализация: ${pairs.length} пар`);
         
-        // 1. УМНЫЙ ПОДБОР: выбираем пары с учётом распределения
-        const selectedPairs = this.selectCardsForGame(pairs, distribution);
-        
-        if (selectedPairs.length === 0) {
-            throw new Error('Не удалось подобрать карточки для игры');
-        }
-        
-        this.totalPairs = selectedPairs.length;
         this.cards = [];
+        this.totalPairs = pairs.length;
         
-        // 2. Создаём карточки из выбранных пар
-        selectedPairs.forEach((pair, index) => {
-            // Левая карточка
+        // Создаём карточки (без перемешивания пар - это избыточно)
+        pairs.forEach((pair, index) => {
             this.cards.push({
-                id: `card_left_${pair.pairId}_${index}`,
-                pairId: pair.pairId,
+                id: `card_left_${index}`,
+                pairId: pair.id,
                 side: 'left',
-                text: pair.leftText,
+                text: pair.left,
+                description: pair.description || '', // Сохраняем описание пары
                 state: 'pool',
                 position: index
             });
             
-            // Правая карточка (уже выбранная по сложности)
             this.cards.push({
-                id: `card_right_${pair.pairId}_${index}`,
-                pairId: pair.pairId,
+                id: `card_right_${index}`,
+                pairId: pair.id,
                 side: 'right',
-                text: pair.rightText,
-                description: pair.rightDescription,
-                difficulty: pair.rightDifficulty,
+                text: pair.right,
+                description: pair.description || '', // Сохраняем описание пары
                 state: 'pool',
                 position: index
             });
         });
         
-        // 3. Разделяем по сторонам
+        // Разделяем по сторонам
         this.poolCards.left = this.cards.filter(c => c.side === 'left');
         this.poolCards.right = this.cards.filter(c => c.side === 'right');
         
-        // 4. Перемешиваем пулы
+        // Перемешиваем пулы
         this.poolCards.left = this.shuffle(this.poolCards.left);
         this.poolCards.right = this.shuffle(this.poolCards.right);
         
-        // 5. Гарантируем наличие совпадений на доске
-        this.ensureMatchOnBoard();
-        
-        // 6. Выкладываем на доску
-        this.boardCards.left = this.poolCards.left.splice(0, this.CARDS_ON_BOARD);
-        this.boardCards.right = this.poolCards.right.splice(0, this.CARDS_ON_BOARD);
-        
-        // Помечаем как активные
-        [...this.boardCards.left, ...this.boardCards.right].forEach(c => {
-            c.state = 'active';
-        });
-        
-        console.log(`✅ Создано ${this.cards.length} карточек (${this.totalPairs} пар)`);
-        console.log(`📊 На доске: ${this.boardCards.left.length} левых, ${this.boardCards.right.length} правых`);
-    }
-    
-    /**
-     * Умный подбор карточек с учётом распределения сложности
-     * @param {Array} pairs - Массив пар с множественными правыми карточками
-     * @param {Object} distribution - { easy: N, medium: N, hard: N }
-     * @returns {Array} Массив выбранных пар
-     */
-    selectCardsForGame(pairs, distribution) {
-        const { easy = 0, medium = 0, hard = 0 } = distribution;
-        const totalNeeded = easy + medium + hard;
-        
-        console.log(`🎯 Подбор карточек: легких ${easy}, средних ${medium}, сложных ${hard} (всего ${totalNeeded})`);
-        
-        // 1. Создаём пулы правых карточек по сложности
-        const rightCardPools = { 1: [], 2: [], 3: [] };
-        
-        pairs.forEach(pair => {
-            if (!pair.rights || !Array.isArray(pair.rights)) {
-                console.warn(`⚠️ Пара ${pair.id} не имеет массива rights`);
-                return;
-            }
-            
-            pair.rights.forEach(right => {
-                rightCardPools[right.difficulty].push({
-                    leftText: pair.left,
-                    leftId: pair.id,
-                    rightText: right.text,
-                    rightDescription: right.description,
-                    rightDifficulty: right.difficulty,
-                    pairId: pair.id
-                });
-            });
-        });
-        
-        console.log(`📦 Пулы созданы:`, {
-            easy: rightCardPools[1].length,
-            medium: rightCardPools[2].length,
-            hard: rightCardPools[3].length
-        });
-        
-        // 2. Перемешиваем каждый пул
-        [1, 2, 3].forEach(diff => {
-            rightCardPools[diff] = this.shuffle(rightCardPools[diff]);
-        });
-        
-        // 3. ГЛАВНЫЙ АЛГОРИТМ: Подбор карточек
-        const selectedPairs = [];
-        const usedLeftIds = new Set();
-        
-        // Порядок важен: сначала сложные, потом средние, потом лёгкие
-        const pickingOrder = [
-            { difficulty: 3, count: hard },
-            { difficulty: 2, count: medium },
-            { difficulty: 1, count: easy }
-        ];
-        
-        pickingOrder.forEach(({ difficulty: diff, count }) => {
-            if (count === 0) return;
-            
-            console.log(`\n🔍 Выбираем ${count} карточек сложности ${diff}`);
-            
-            let picked = 0;
-            const pool = rightCardPools[diff];
-            
-            for (let i = 0; i < pool.length && picked < count; i++) {
-                const candidate = pool[i];
-                
-                // Проверка: не использовали ли уже эту левую карточку?
-                if (!usedLeftIds.has(candidate.pairId)) {
-                    // ✅ Берём эту пару
-                    selectedPairs.push(candidate);
-                    usedLeftIds.add(candidate.pairId);
-                    picked++;
-                    
-                    console.log(`  ✓ "${candidate.leftText}" → "${candidate.rightText}"`);
-                    
-                    // 🗑️ КЛЮЧЕВОЙ МОМЕНТ: Удаляем ВСЕ правые карточки этой левой из ВСЕХ пулов
-                    [1, 2, 3].forEach(poolDiff => {
-                        const before = rightCardPools[poolDiff].length;
-                        rightCardPools[poolDiff] = rightCardPools[poolDiff].filter(
-                            card => card.pairId !== candidate.pairId
-                        );
-                        const removed = before - rightCardPools[poolDiff].length;
-                        if (removed > 0) {
-                            console.log(`    🗑️ Удалено ${removed} из пула сложности ${poolDiff}`);
-                        }
-                    });
-                }
-            }
-            
-            if (picked < count) {
-                console.warn(`⚠️ Не хватило карточек сложности ${diff}! Нужно ${count}, получено ${picked}`);
-            }
-        });
-        
-        console.log(`\n✅ Итого выбрано: ${selectedPairs.length} пар`);
-        
-        // Проверка уникальности
-        const uniqueLefts = new Set(selectedPairs.map(p => p.pairId));
-        console.log(`✓ Уникальных левых карточек: ${uniqueLefts.size}`);
-        
-        return selectedPairs;
-    }
-    
-    /**
-     * Гарантировать наличие совпадения на доске
-     * Упрощённая версия - перемешиваем правую сторону до появления совпадения
-     */
-    ensureMatchOnBoard() {
+        // Гарантируем наличие хотя бы одной пары в первых CARDS_ON_BOARD карточках
         let hasMatch = false;
         let attempts = 0;
         const maxAttempts = 100;
         
         while (!hasMatch && attempts < maxAttempts) {
+            // Проверяем есть ли совпадения в первых CARDS_ON_BOARD карточках
             const leftFirst = this.poolCards.left.slice(0, this.CARDS_ON_BOARD);
             const rightFirst = this.poolCards.right.slice(0, this.CARDS_ON_BOARD);
             
-            hasMatch = this.checkAnyMatchExists(leftFirst, rightFirst);
+            for (let leftCard of leftFirst) {
+                for (let rightCard of rightFirst) {
+                    if (leftCard.pairId === rightCard.pairId) {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+                if (hasMatch) break;
+            }
             
+            // Если совпадений нет, перемешиваем правую сторону заново
             if (!hasMatch) {
                 this.poolCards.right = this.shuffle(this.poolCards.right);
                 attempts++;
@@ -330,9 +205,16 @@ class GameModel {
             console.log(`🔄 Перемешано ${attempts} раз для гарантии совпадений`);
         }
         
-        if (!hasMatch) {
-            console.warn('⚠️ Не удалось гарантировать совпадение на доске за 100 попыток');
-        }
+        // Выводим на доску
+        this.boardCards.left = this.poolCards.left.splice(0, this.CARDS_ON_BOARD);
+        this.boardCards.right = this.poolCards.right.splice(0, this.CARDS_ON_BOARD);
+        
+        // Помечаем как активные
+        [...this.boardCards.left, ...this.boardCards.right].forEach(c => {
+            c.state = 'active';
+        });
+        
+        console.log(`✅ Карточки: ${this.cards.length} всего, ${this.boardCards.left.length * 2} на доске`);
     }
     
     /**
@@ -386,7 +268,7 @@ class GameModel {
             card1,
             card2,
             pairId: card1.pairId,
-            description: card2.side === 'right' ? card2.description : card1.description
+            description: card1.description // Добавляем описание пары
         };
     }
     

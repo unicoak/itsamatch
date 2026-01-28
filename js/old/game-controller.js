@@ -9,12 +9,12 @@
  * - Bootstrap процесс
  * - Координацию игрового процесса
  * 
- * @version 5.0 - Поддержка множественных правых карточек
+ * @version 4.0
  */
 
 class GameController {
     constructor(model, view) {
-        console.log('🎮 Инициализация GameController v5.0');
+        console.log('🎮 Инициализация GameController v4.0');
         
         this.model = model;
         this.view = view;
@@ -47,17 +47,19 @@ class GameController {
             this.view.updateLoadingMessage('Проверка данных...');
             this.validateTheme(themeData);
             
-            // Шаг 4: Получаем распределение по сложности
-            const distribution = this.getDistributionForDifficulty(difficulty);
+            // Шаг 4: Выбираем пары по сложности
+            const pairs = this.selectPairsByDifficulty(themeData.pairs, difficulty);
             
-            console.log(`📊 Для сложности ${difficulty} нужно: легких ${distribution.easy}, средних ${distribution.medium}, сложных ${distribution.hard}`);
+            if (pairs.length < 6) {
+                throw new Error('Недостаточно пар для игры');
+            }
             
-            // Шаг 5: Инициализируем модель (она сама выберет нужные пары)
+            // Шаг 5: Инициализируем модель
             this.view.updateLoadingMessage('Подготовка карточек...');
             this.model.themeData = themeData;
             this.model.themeId = themeId;
             this.model.difficulty = difficulty;
-            this.model.initializeCards(themeData.pairs, distribution);
+            this.model.initializeCards(pairs);
             
             // Шаг 6: Отображаем карточки
             this.view.updateLoadingMessage('Отрисовка...');
@@ -124,7 +126,7 @@ class GameController {
     }
     
     /**
-     * Валидация темы (с поддержкой новой структуры)
+     * Валидация темы
      */
     validateTheme(themeData) {
         if (!themeData || typeof themeData !== 'object' || Array.isArray(themeData)) {
@@ -139,70 +141,75 @@ class GameController {
             throw new Error('В теме нет ни одной пары');
         }
         
-        if (themeData.pairs.length < 6) {
-            throw new Error(`Недостаточно пар в теме (минимум 6, есть ${themeData.pairs.length})`);
+        if (themeData.pairs.length < 3) {
+            throw new Error(`Слишком мало пар: ${themeData.pairs.length}`);
         }
         
         if (!themeData.title) {
             throw new Error('В теме отсутствует title');
         }
         
-        // Валидация пар (новая структура)
+        // Валидация пар
         themeData.pairs.forEach((pair, index) => {
             if (!pair.id) {
                 throw new Error(`Пара ${index} не имеет id`);
             }
-            if (!pair.left) {
-                throw new Error(`Пара ${index} не имеет left`);
+            if (!pair.left || !pair.right) {
+                throw new Error(`Пара ${index} не имеет left или right`);
             }
-            
-            // Проверяем новую структуру
-            if (!pair.rights || !Array.isArray(pair.rights)) {
-                throw new Error(`Пара ${index} не имеет массива rights`);
-            }
-            
-            if (pair.rights.length === 0) {
-                throw new Error(`Пара ${index} имеет пустой массив rights`);
-            }
-            
-            // Проверяем каждую правую карточку
-            pair.rights.forEach((right, rightIndex) => {
-                if (!right.text) {
-                    throw new Error(`Пара ${index}, right ${rightIndex} не имеет text`);
-                }
-                if (!right.difficulty || ![1, 2, 3].includes(right.difficulty)) {
-                    throw new Error(`Пара ${index}, right ${rightIndex} имеет некорректную сложность (должна быть 1, 2 или 3)`);
-                }
-                if (!right.description) {
-                    console.warn(`⚠️ Пара ${index}, right ${rightIndex} не имеет description`);
-                }
-            });
         });
         
         console.log('✅ Тема прошла валидацию');
     }
     
     /**
-     * Получить распределение карточек для уровня сложности
-     * @param {Number} difficulty - Уровень сложности (1, 2, 3)
-     * @returns {Object} { easy: N, medium: N, hard: N }
+     * Выбор пар по сложности
      */
-    getDistributionForDifficulty(difficulty) {
-        // Конкретные числа для каждого уровня
-        const distributions = {
-            1: { easy: 10, medium: 2, hard: 0 },   // Лёгкий: 12 пар (83% лёгкие, 17% средние)
-            2: { easy: 6, medium: 9, hard: 3 },    // Средний: 18 пар (33% лёгкие, 50% средние, 17% сложные)
-            3: { easy: 6, medium: 6, hard: 12 }    // Сложный: 24 пары (25% лёгкие, 25% средние, 50% сложные)
+    selectPairsByDifficulty(allPairs, difficulty) {
+        // Helper function to shuffle arrays
+        const shuffle = (array) => {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
         };
         
-        const distribution = distributions[difficulty];
+        // Filter by difficulty
+        const easy = allPairs.filter(p => p.difficulty === 1);
+        const medium = allPairs.filter(p => p.difficulty === 2);
+        const hard = allPairs.filter(p => p.difficulty === 3);
         
-        if (!distribution) {
-            console.warn(`⚠️ Неизвестная сложность ${difficulty}, используем средний уровень`);
-            return distributions[2];
+        // Shuffle BEFORE slicing to get different pairs each game
+        const shuffledEasy = shuffle(easy);
+        const shuffledMedium = shuffle(medium);
+        const shuffledHard = shuffle(hard);
+        
+        // Define requirements for each difficulty
+        const requirements = {
+            1: { min: 12, easy: 10, medium: 2, hard: 0 },
+            2: { min: 18, easy: 6, medium: 9, hard: 3 },
+            3: { min: 24, easy: 6, medium: 6, hard: 12 }
+        };
+        
+        const req = requirements[difficulty] || requirements[2]; // Default to medium
+        
+        let selected = [
+            ...shuffledEasy.slice(0, req.easy),
+            ...shuffledMedium.slice(0, req.medium),
+            ...shuffledHard.slice(0, req.hard)
+        ];
+        
+        // Если не хватило - берём из всех доступных
+        if (selected.length < req.min) {
+            console.warn(`⚠️ Недостаточно пар для сложности ${difficulty}, нужно ${req.min}, есть ${selected.length}`);
+            selected = allPairs.slice(0, req.min);
         }
         
-        return distribution;
+        console.log(`✅ Выбрано ${selected.length} пар для сложности ${difficulty}`);
+        
+        return selected;
     }
     
     // ═══════════════════════════════════════════════════════════
@@ -351,13 +358,11 @@ class GameController {
         console.log('🔄 Запрос замен для совпавших карточек...');
         const replacements = this.model.getReplacements(result.card1.id, result.card2.id);
         console.log('📦 Получено замен:', replacements.length);
-        
         // Очищаем состояние drag-drop перед заменами
         if (window.dragDropManager) {
             console.log('🧹 Очистка состояния drag-drop перед заменами');
             window.dragDropManager.reset();
         }
-        
         // Применяем замены/удаления
         console.log('━━━ НАЧАЛО ЗАМЕН ━━━');
         replacements.forEach((replacement, index) => {
