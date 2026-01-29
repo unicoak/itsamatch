@@ -190,9 +190,9 @@ class GameController {
     getDistributionForDifficulty(difficulty) {
         // Конкретные числа для каждого уровня
         const distributions = {
-            1: { easy: 10, medium: 2, hard: 0 },   // Лёгкий: 12 пар (83% лёгкие, 17% средние)
-            2: { easy: 6, medium: 9, hard: 3 },    // Средний: 18 пар (33% лёгкие, 50% средние, 17% сложные)
-            3: { easy: 6, medium: 6, hard: 12 }    // Сложный: 24 пары (25% лёгкие, 25% средние, 50% сложные)
+            1: { easy: 8, medium: 2, hard: 0 },   // Лёгкий: 10 пар (80% лёгкие, 20% средние)
+            2: { easy: 4, medium: 8, hard: 2 },    // Средний: 14 пар (29% лёгкие, 57% средние, 14% сложные)
+            3: { easy: 2, medium: 6, hard: 10 }    // Сложный: 18 пары (11% лёгкие, 33% средние, 56% сложные)
         };
         
         const distribution = distributions[difficulty];
