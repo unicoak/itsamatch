@@ -200,6 +200,14 @@ class GameModel {
         
         console.log(`✅ Создано ${this.cards.length} карточек (${this.totalPairs} пар)`);
         console.log(`📊 На доске: ${this.boardCards.left.length} левых, ${this.boardCards.right.length} правых`);
+
+        if (matches.length === 0) {
+            console.error('НЕТ СОВПАДЕНИЙ НА ДОСКЕ ПОСЛЕ ИНИЦИАЛИЗАЦИИ');
+            console.error('Левые pairIds:', Array.from(leftPairIds));
+            console.error('Правые pairIds:', Array.from(rightPairIds));
+        } else {
+            console.log('На доске ${matches.length} возможных совпадений:', matches);
+        }
     }
     
     /**
@@ -487,6 +495,13 @@ class GameModel {
                 // Проверяем, останутся ли совпадения после замены
                 const tempBoardRight = this.boardCards.right.filter(c => c.id !== oldCardId);
                 const hasMatchWithoutNew = this.checkAnyMatchExists(this.boardCards.left, tempBoardRight);
+
+                console.log('Проверяем наличие совпадений на доске БЕЗ новой карточки...');
+                console.log('Результат проверки hasMatchWithoutNew:', hasMatchWithoutNew);
+                console.log('boardCards.left pairIds:', this.boardCards.left.map(c => c.pairId));
+                console.log('tempBoardRight pairIds:', tempBoardRight.map(c => c.pairId));
+
+
                 
                 let newCard;
                 
@@ -534,6 +549,25 @@ class GameModel {
         }
         
         console.log(`🔄 Подготовлено замен: ${replacements.length}`);
+        console.log('Замены:', replacements.map(r => ({
+            action: r.action,
+            oldCardId: r.oldCardId,
+            newCard: r.newCard ? '${r.newCard.id} (pairId: ${r.newCard.pairId})' : 'нет'
+        })));
+        console.log('Финальная проверка доски:');
+        const leftPairIds = new Set(this.boardCards.left.map(c => c.pairId));
+        const rightPairIds = new Set(this.boardCards.right.map(c => c.pairId));
+        const matches = [...leftPairIds].filter(id => rightPairIds.has(id));
+        console.log('Левые pairIds на доске:', Array.from(leftPairIds));
+        console.log('Правые pairIds на доске:', Array.from(rightPairIds));
+        if (matches === 0) {
+            console.error('КРИТИЧЕСКАЯ ОШИБКА: НЕТ СОВПАДЕНИЙ ПОСЛЕ getReplacements()!');
+            console.error('boardCards.left:', this.boardCards.left.map(c => ({id: c.id, pairId: c.pairId})));
+            console.error('boardCards.right:', this.boardCards.right.map(c => ({id: c.id, pairId: c.pairId})));
+        } else {
+            console.log('Совпадений на доскеЖ ${matches.length}', matches);
+        }
+        
         return replacements;
     }
     
