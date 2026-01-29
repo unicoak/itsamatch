@@ -192,6 +192,12 @@ class GameModel {
         // 6. Выкладываем на доску
         this.boardCards.left = this.poolCards.left.splice(0, this.CARDS_ON_BOARD);
         this.boardCards.right = this.poolCards.right.splice(0, this.CARDS_ON_BOARD);
+
+        const leftPairIds = new Set(this.boardCards.left.map(c => c.pairId));
+        const rightPairIds = new Set(this.boardCards.right.map(c => c.pairId));
+        const matches = [...leftPairIds].filter(id => rightPairIds.has(id));
+
+
         
         // Помечаем как активные
         [...this.boardCards.left, ...this.boardCards.right].forEach(c => {
