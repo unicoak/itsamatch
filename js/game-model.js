@@ -212,7 +212,7 @@ class GameModel {
             console.error('Левые pairIds:', Array.from(leftPairIds));
             console.error('Правые pairIds:', Array.from(rightPairIds));
         } else {
-            console.log('На доске ${matches.length} возможных совпадений:', matches);
+            console.log(`На доске ${matches.length} возможных совпадений:`, matches);
         }
     }
     
@@ -571,7 +571,7 @@ class GameModel {
             console.error('boardCards.left:', this.boardCards.left.map(c => ({id: c.id, pairId: c.pairId})));
             console.error('boardCards.right:', this.boardCards.right.map(c => ({id: c.id, pairId: c.pairId})));
         } else {
-            console.log('Совпадений на доскеЖ ${matches.length}', matches);
+            console.log(`Совпадений на доске: ${matches.length}`, matches);
         }
         
         return replacements;
