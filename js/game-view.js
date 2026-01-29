@@ -308,7 +308,7 @@ class GameView {
                     tooltip.parentNode.removeChild(tooltip);
                 }
             }, 300); // Ждём завершения анимации slide up
-        }, 3300);
+        }, 5300);
         
         console.log('📝 Показано описание:', description);
     }
